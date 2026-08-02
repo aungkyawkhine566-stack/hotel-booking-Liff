@@ -118,6 +118,36 @@ input,select{
 </style>
 </head>
 <body>
+  <h2 id="status">Loading...</h2>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+<script>
+async function initLIFF() {
+  try {
+
+    await liff.init({
+      liffId: "2010771379-0v8talZ9"
+    });
+
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
+    }
+
+    const profile = await liff.getProfile();
+
+    document.getElementById("status").innerHTML =
+      "Welcome " + profile.displayName;
+
+  } catch(err) {
+    document.getElementById("status").innerHTML =
+      "Error: " + err.message;
+  }
+}
+
+initLIFF();
+</script>
 
 <div class="container">
 
