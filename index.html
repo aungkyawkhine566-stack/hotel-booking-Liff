@@ -214,6 +214,29 @@ Check-out: ${checkout}`
 );
 
 }
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+<script>
+async function initLIFF() {
+
+  await liff.init({
+    liffId: "YOUR_LIFF_ID"
+  });
+
+  if (!liff.isLoggedIn()) {
+    liff.login();
+    return;
+  }
+
+  const profile = await liff.getProfile();
+
+  alert("Welcome " + profile.displayName);
+
+  console.log(profile);
+}
+
+initLIFF();
+</script>
 
 </script>
 
