@@ -1,118 +1,218 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hotel Booking</title>
 
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-
 <style>
-body{
-font-family:Arial;
-padding:20px;
-background:#f5f5f5;
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Segoe UI',sans-serif;
 }
 
-.card{
-background:white;
-padding:20px;
-border-radius:12px;
-box-shadow:0 2px 10px rgba(0,0,0,.1);
+body{
+  background:#f3f6fb;
+  padding:20px;
+}
+
+.container{
+  max-width:500px;
+  margin:auto;
+}
+
+.hotel-card{
+  background:white;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 10px 25px rgba(0,0,0,.1);
+}
+
+.hotel-image{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+}
+
+.content{
+  padding:20px;
+}
+
+.hotel-name{
+  font-size:26px;
+  font-weight:bold;
+  color:#222;
+}
+
+.rating{
+  color:#ffb400;
+  margin-top:5px;
+}
+
+.price{
+  color:#06C755;
+  font-size:22px;
+  font-weight:bold;
+  margin-top:10px;
+}
+
+.form-group{
+  margin-top:15px;
+}
+
+label{
+  display:block;
+  margin-bottom:6px;
+  font-weight:600;
+  color:#444;
 }
 
 input,select{
-width:100%;
-padding:12px;
-margin-top:10px;
-margin-bottom:15px;
-border:1px solid #ddd;
-border-radius:8px;
+  width:100%;
+  padding:14px;
+  border:1px solid #ddd;
+  border-radius:12px;
+  font-size:15px;
 }
 
-button{
-width:100%;
-padding:14px;
-background:#06C755;
-color:white;
-border:none;
-border-radius:8px;
-font-size:16px;
+.summary{
+  margin-top:20px;
+  background:#f8f9fc;
+  border-radius:15px;
+  padding:15px;
+}
+
+.summary h3{
+  margin-bottom:10px;
+}
+
+.book-btn{
+  width:100%;
+  margin-top:20px;
+  padding:16px;
+  border:none;
+  border-radius:14px;
+  background:#06C755;
+  color:white;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.book-btn:hover{
+  opacity:.9;
+}
+
+.success{
+  display:none;
+  margin-top:20px;
+  background:#e8fff0;
+  color:#008a3d;
+  padding:15px;
+  border-radius:12px;
+  text-align:center;
+  font-weight:bold;
 }
 </style>
 </head>
-
 <body>
 
-<div class="card">
+<div class="container">
 
-<h2>Hotel Booking</h2>
+<div class="hotel-card">
 
+<img
+class="hotel-image"
+src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200"
+alt="Hotel">
+
+<div class="content">
+
+<div class="hotel-name">
+🏨 Grand Hotel
+</div>
+
+<div class="rating">
+⭐⭐⭐⭐⭐ 4.9 Rating
+</div>
+
+<div class="price">
+$80 / Night
+</div>
+
+<div class="form-group">
+<label>Check-in Date</label>
 <input type="date" id="checkin">
+</div>
 
+<div class="form-group">
+<label>Check-out Date</label>
 <input type="date" id="checkout">
+</div>
 
+<div class="form-group">
+<label>Room Type</label>
 <select id="room">
-<option>Standard</option>
-<option>Deluxe</option>
-<option>Suite</option>
+<option>Standard Room</option>
+<option>Deluxe Room</option>
+<option>Suite Room</option>
 </select>
+</div>
 
-<input type="number" id="guest"
-placeholder="Number of Guests">
+<div class="form-group">
+<label>Guests</label>
+<input type="number" id="guest" value="2">
+</div>
 
-<button onclick="bookRoom()">
+<div class="summary">
+<h3>Booking Summary</h3>
+
+<p>Hotel : Grand Hotel</p>
+<p>Price : $80 / Night</p>
+<p>Location : Bangkok</p>
+</div>
+
+<button class="book-btn" onclick="bookRoom()">
 Book Now
 </button>
+
+<div class="success" id="successMsg">
+✅ Booking Successful!
+</div>
+
+</div>
+</div>
 
 </div>
 
 <script>
 
-async function init(){
-await liff.init({
-liffId:"YOUR_LIFF_ID"
-});
+function bookRoom(){
+
+const checkin =
+document.getElementById("checkin").value;
+
+const checkout =
+document.getElementById("checkout").value;
+
+if(!checkin || !checkout){
+
+alert("Please select Check-in and Check-out dates");
+
+return;
 }
 
-init();
+document.getElementById("successMsg").style.display="block";
 
-async function bookRoom(){
-
-const profile = await liff.getProfile();
-
-const data = {
-userId: profile.userId,
-name: profile.displayName,
-checkin: document.getElementById("checkin").value,
-checkout: document.getElementById("checkout").value,
-room: document.getElementById("room").value,
-guest: document.getElementById("guest").value
-};
-
-fetch("YOUR_N8N_WEBHOOK_URL",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify(data)
-})
-.then(r=>r.json())
-.then(result=>{
-
-alert("Booking Success");
-
-liff.sendMessages([
-{
-type:"text",
-text:
+alert(
 `🏨 Booking Confirmed
-Room : ${data.room}
-Check-in : ${data.checkin}
-Check-out : ${data.checkout}`
-}
-]);
 
-});
+Check-in: ${checkin}
+Check-out: ${checkout}`
+);
+
 }
 
 </script>
