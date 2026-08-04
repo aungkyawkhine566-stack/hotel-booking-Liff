@@ -893,17 +893,33 @@
         }
       */
 
-      if (result.available === false) {
+     if (result.available === false) {
 
-        showMessage(
-          "Sorry, this room is not available for the selected dates.",
-          "error"
-        );
+  let altText =
+    "Selected room is full.\n\nAvailable Rooms:\n";
 
-        button.disabled = false;
-        button.textContent = "Confirm Booking";
-        return;
-      }
+  if(result.alternatives){
+
+    result.alternatives.forEach(room => {
+
+      altText +=
+        `${room.roomType}
+Room ${room.roomNo}
+$${room.price}/night
+
+`;
+
+    });
+
+  }
+
+  alert(altText);
+
+  button.disabled = false;
+  button.textContent = "Confirm Booking";
+
+  return;
+}
 
 
       const bookingId =
