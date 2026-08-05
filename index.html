@@ -285,7 +285,19 @@ Book Now
 
 <script>
 
-const LIFF_ID = "YOUR_LIFF_ID";
+const LIFF_ID = "2010935853-z0nGBi5C";
+  fetch(
+  "https://sage-loon.pikapod.net/webhook-test/search-room",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({})
+  }
+)
+.then(r => r.json())
+.then(console.log);
 
 async function initLIFF(){
 
