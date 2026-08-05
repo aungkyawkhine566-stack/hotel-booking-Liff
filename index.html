@@ -1071,6 +1071,25 @@ $${room.price}/night
   document.getElementById("guests").addEventListener("change", updateSummary);
 
   initLIFF();
+  async function loadBookings() {
+
+  const profile = await liff.getProfile();
+
+  const res = await fetch(WEBHOOK_URL,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      action:"my_bookings",
+      lineUserId:profile.userId
+    })
+  });
+
+  const data = await res.json();
+
+  console.log(data);
+}
 </script>
 
 </body>
