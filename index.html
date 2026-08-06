@@ -1,346 +1,409 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hotel Booking</title>
 
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:sans-serif;
+font-family:'Poppins',sans-serif;
 }
 
 body{
-background:#f5f7fb;
-padding:15px;
+background:#f3f6fb;
+color:#333;
+padding-bottom:90px;
 }
 
 .header{
-background:#06C755;
-color:white;
-padding:20px;
-border-radius:15px;
-margin-bottom:15px;
+background:linear-gradient(135deg,#4f46e5,#2563eb);
+padding:35px 20px;
+color:#fff;
+border-bottom-left-radius:30px;
+border-bottom-right-radius:30px;
+box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+
+.header h2{
+font-size:28px;
+font-weight:700;
+}
+
+.header p{
+margin-top:6px;
+opacity:.9;
+}
+
+.container{
+padding:18px;
 }
 
 .card{
-background:white;
-padding:15px;
-border-radius:15px;
-margin-bottom:15px;
-box-shadow:0 2px 10px rgba(0,0,0,.08);
+background:#fff;
+border-radius:20px;
+padding:18px;
+margin-bottom:18px;
+box-shadow:0 8px 20px rgba(0,0,0,.08);
 }
 
-input,select{
-width:100%;
-padding:12px;
-margin-top:10px;
-border:1px solid #ddd;
-border-radius:10px;
-}
-
-button{
+.searchBtn{
 width:100%;
 padding:14px;
 border:none;
-border-radius:10px;
-background:#06C755;
-color:white;
-font-size:16px;
-margin-top:10px;
-cursor:pointer;
-}
-
-.room-card{
-background:white;
-padding:15px;
+background:#2563eb;
+color:#fff;
 border-radius:15px;
-margin-top:12px;
-box-shadow:0 2px 8px rgba(0,0,0,.08);
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+transition:.3s;
 }
 
-.room-title{
-font-size:18px;
-font-weight:bold;
+.searchBtn:hover{
+transform:scale(.98);
+}
+
+.banner{
+width:100%;
+border-radius:20px;
+margin-top:15px;
+}
+
+.sectionTitle{
+font-size:20px;
+font-weight:600;
+margin-bottom:15px;
+}
+
+  .input{
+width:100%;
+padding:14px;
+margin-bottom:12px;
+border:none;
+background:#f3f3f3;
+border-radius:12px;
+font-size:15px;
+}
+
+.room{
+display:flex;
+background:#fafafa;
+border-radius:18px;
+overflow:hidden;
+margin-top:15px;
+box-shadow:0 5px 15px rgba(0,0,0,.06);
+}
+
+.room img{
+width:110px;
+height:110px;
+object-fit:cover;
+}
+
+.info{
+padding:12px;
+flex:1;
+}
+
+.info h4{
+margin-bottom:5px;
 }
 
 .price{
-color:#06C755;
-font-size:20px;
+color:#2563eb;
 font-weight:bold;
-margin-top:5px;
+margin:8px 0;
 }
 
-.booking-card{
-background:white;
-padding:15px;
-border-radius:15px;
-margin-top:12px;
-border-left:5px solid #06C755;
+.bookBtn{
+background:#10b981;
+color:white;
+border:none;
+padding:10px 16px;
+border-radius:10px;
+font-weight:600;
+cursor:pointer;
 }
 
+  .page{
+display:none;
+}
+
+.page.active{
+display:block;
+animation:fade .3s;
+}
+
+@keyframes fade{
+from{opacity:0;transform:translateY(10px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+.bottomNav{
+position:fixed;
+left:0;
+right:0;
+bottom:0;
+height:70px;
+background:#fff;
+display:flex;
+justify-content:space-around;
+align-items:center;
+box-shadow:0 -5px 20px rgba(0,0,0,.08);
+z-index:999;
+}
+
+.navItem{
+flex:1;
+text-align:center;
+cursor:pointer;
+padding:10px 0;
+font-size:12px;
+color:#666;
+}
+
+.navItem.active{
+color:#2563eb;
+font-weight:bold;
+}
 </style>
-
 </head>
 
 <body>
+  
 
 <div class="header">
 <h2>🏨 Hotel Booking</h2>
-<div id="userName">Loading...</div>
+<p>Book your dream room anytime.</p>
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<h3 class="sectionTitle">Welcome 👋</h3>
+
+<p>
+Find available rooms quickly and book directly from LINE.
+</p>
+
+<img
+class="banner"
+src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=900">
+
 </div>
 
 <div class="card">
 
-<h3>Search Room</h3>
+<h3 class="sectionTitle">Search Rooms</h3>
 
-<input type="date" id="checkIn">
-
-<input type="date" id="checkOut">
-
-<button onclick="searchRooms()">
-Search Rooms
+<button class="searchBtn">
+Search Available Rooms
 </button>
 
 </div>
 
-<div id="roomResults"></div>
+  <div class="card">
+
+<h3 class="sectionTitle">🔍 Search Rooms</h3>
+
+<input type="date" id="checkin" class="input">
+
+<input type="date" id="checkout" class="input">
+
+<select id="guests" class="input">
+<option>1 Guest</option>
+<option>2 Guests</option>
+<option>3 Guests</option>
+<option>4 Guests</option>
+</select>
+
+<button class="searchBtn" onclick="searchRooms()">
+Search Available Rooms
+</button>
+
+</div>
 
 <div class="card">
 
-<button onclick="loadMyBookings()">
-📖 My Bookings
-</button>
+<h3 class="sectionTitle">🏨 Available Rooms</h3>
+
+<div class="room">
+
+<img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?w=500">
+
+<div class="info">
+<h4>Deluxe Room</h4>
+<p>⭐⭐⭐⭐⭐</p>
+<p>2 Guests</p>
+<p class="price">$80 / Night</p>
+<button class="bookBtn">Book Now</button>
+</div>
 
 </div>
 
-<div id="bookingResults"></div>
+<div class="room">
+
+<img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=500">
+
+<div class="info">
+<h4>Superior Room</h4>
+<p>⭐⭐⭐⭐</p>
+<p>3 Guests</p>
+<p class="price">$120 / Night</p>
+<button class="bookBtn">Book Now</button>
+</div>
+
+</div>
+
+<div class="room">
+
+<img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500">
+
+<div class="info">
+<h4>Family Room</h4>
+<p>⭐⭐⭐⭐⭐</p>
+<p>4 Guests</p>
+<p class="price">$180 / Night</p>
+<button class="bookBtn">Book Now</button>
+</div>
+
+</div>
+
+</div>
+
+  <div id="bookingsPage" class="page">
+
+<div class="card">
+<h3 class="sectionTitle">📖 My Bookings</h3>
+
+<p>Booking မရှိသေးပါ။</p>
+
+</div>
+
+</div>
+
+<div id="paymentPage" class="page">
+
+<div class="card">
+<h3 class="sectionTitle">💳 Payment</h3>
+
+<p>Payment ပြုလုပ်ရန် Booking တစ်ခုရွေးပါ။</p>
+
+</div>
+
+</div>
+
+<div id="profilePage" class="page">
+
+<div class="card">
+
+<h3 class="sectionTitle">👤 Profile</h3>
+
+<p>Name : LINE User</p>
+
+<p>Phone : -</p>
+
+<p>Email : -</p>
+
+</div>
+
+</div>
+  <div class="bottomNav">
+
+<div class="navItem active" onclick="showPage('home',this)">
+🏠<br>Home
+</div>
+
+<div class="navItem" onclick="showPage('bookings',this)">
+📖<br>Bookings
+</div>
+
+<div class="navItem" onclick="showPage('payment',this)">
+💳<br>Payment
+</div>
+
+<div class="navItem" onclick="showPage('profile',this)">
+👤<br>Profile
+</div>
+
+</div>
+
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
 <script>
+  const LIFF_ID = "2010935853-z0nGBi5C";
 
-const LIFF_ID = "YOUR_LIFF_ID";
+async function initLIFF() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
 
-const SEARCH_URL =
-"https://sage-loon.pikapod.net/webhook/search-room";
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
+    }
 
-const BOOK_URL =
-"https://sage-loon.pikapod.net/webhook/Booking";
+    const profile = await liff.getProfile();
 
-const MYBOOKING_URL =
-"https://sage-loon.pikapod.net/webhook/Mybooking";
+    document.querySelector("#profilePage").innerHTML = `
+      <div class="card">
+        <img src="${profile.pictureUrl}"
+             style="width:90px;height:90px;border-radius:50%;display:block;margin:auto;">
+        <h3 style="text-align:center;margin-top:10px;">
+          ${profile.displayName}
+        </h3>
+        <p style="text-align:center;">User ID</p>
+        <small style="display:block;text-align:center;word-break:break-all;">
+          ${profile.userId}
+        </small>
+      </div>
+    `;
 
-let profile=null;
+  } catch (err) {
+    console.error(err);
+  }
+}
 
-async function init(){
+initLIFF();
 
-await liff.init({
-liffId:LIFF_ID
+  function searchRooms(){
+alert("နောက်အဆင့်မှာ n8n Webhook ကို ချိတ်ပါမယ်");
+}
+  function showPage(page,el){
+
+document.querySelectorAll(".page").forEach(p=>{
+p.classList.remove("active");
 });
 
-if(!liff.isLoggedIn()){
-liff.login();
-return;
-}
-
-profile = await liff.getProfile();
-
-document.getElementById("userName").innerHTML =
-"Welcome " + profile.displayName;
-
-}
-
-init();
-
-async function searchRooms(){
-
-const res = await fetch(SEARCH_URL);
-
-const data = await res.json();
-
-console.log(data);
-
-const container =
-document.getElementById("roomResults");
-
-container.innerHTML="";
-
-if(!data.rooms){
-alert("No rooms found");
-return;
-}
-
-data.rooms.forEach(room=>{
-
-container.innerHTML += `
-
-<div class="room-card">
-
-<div class="room-title">
-Room ${room.roomNo}
-</div>
-
-<div>
-${room.roomType}
-</div>
-
-<div class="price">
-$${room.price}/night
-</div>
-
-<button onclick="bookRoom('${room.roomNo}')">
-Book Now
-</button>
-
-</div>
-
-`;
-
+document.querySelectorAll(".navItem").forEach(n=>{
+n.classList.remove("active");
 });
 
+el.classList.add("active");
+
+if(page==="bookings"){
+document.getElementById("bookingsPage").classList.add("active");
 }
 
-async function bookRoom(roomNo){
-
-const checkIn =
-document.getElementById("checkIn").value;
-
-const checkOut =
-document.getElementById("checkOut").value;
-
-if(!checkIn || !checkOut){
-
-alert("Select dates first");
-
-return;
-
+if(page==="payment"){
+document.getElementById("paymentPage").classList.add("active");
 }
 
-const res = await fetch(
-BOOK_URL,
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-
-roomNo:roomNo,
-
-customerName:
-profile.displayName,
-
-lineUserId:
-profile.userId,
-
-phone:"",
-
-guests:1,
-
-checkIn:checkIn,
-
-checkOut:checkOut
-
-})
-}
-);
-
-const data = await res.json();
-
-console.log(data);
-
-if(data.success===false){
-
-alert(data.message);
-
-return;
-
+if(page==="profile"){
+document.getElementById("profilePage").classList.add("active");
 }
 
-alert("Booking Success");
-
-loadMyBookings();
-
+if(page==="home"){
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
 }
 
-async function loadMyBookings(){
-
-const res = await fetch(
-MYBOOKING_URL,
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-
-lineUserId:
-profile.userId
-
-})
 }
-);
-
-const data = await res.json();
-
-console.log(data);
-
-const container =
-document.getElementById(
-"bookingResults"
-);
-
-container.innerHTML="";
-
-const bookings =
-data.bookings || data;
-
-bookings.forEach(item=>{
-
-container.innerHTML += `
-
-<div class="booking-card">
-
-<h3>
-Booking ID :
-${item.bookingId}
-</h3>
-
-<p>
-Room :
-${item.roomNo}
-</p>
-
-<p>
-Check In :
-${item.checkIn}
-</p>
-
-<p>
-Check Out :
-${item.checkOut}
-</p>
-
-<p>
-Status :
-${item.status}
-</p>
-
-</div>
-
-`;
-
-});
-
-}
-
 </script>
-
 </body>
 </html>
