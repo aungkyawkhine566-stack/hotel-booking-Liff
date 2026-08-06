@@ -310,13 +310,12 @@ Book Now
 const LIFF_ID = "2010935853-z0nGBi5C";
  async function searchRooms() {
 
-  const res = await fetch(
-    "https://sage-loon.pikapod.net/webhook-test/search-room"
-  );
+  const SEARCH_URL =
+"https://sage-loon.pikapod.net/webhook-test/search-room";
+const res = await fetch(SEARCH_URL);
+const data = await res.json();
 
-  const data = await res.json();
-
-  console.log(data);
+console.log(data);
 
   const roomList = document.getElementById("roomList");
 
