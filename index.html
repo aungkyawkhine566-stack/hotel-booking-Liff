@@ -381,36 +381,82 @@ line-height:1.6;
 const LIFF_ID = "2010935853-z0nGBi5C";
 
 /* ---------- Demo Rooms ---------- */
-const rooms = [
-{
-id:1,
-name:"Deluxe Room",
-price:80,
-guests:2,
-image:"https://images.unsplash.com/photo-1590490360182-c33d57733427?w=900"
-},
-{
-id:2,
-name:"Superior Room",
-price:120,
-guests:3,
-image:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=900"
-},
-{
-id:3,
-name:"Family Room",
-price:180,
-guests:4,
-image:"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=900"
-}
-];
+const WEBHOOK_URL =
+"https://YOUR-N8N-DOMAIN/webhook/search-rooms";
+
+let rooms = [];
 
 /* ---------- Show Rooms ---------- */
-function searchRooms(){
+async function searchRooms(){
+
+const checkin=document.getElementById("checkin").value;
+
+const checkout=document.getElementById("checkout").value;
+
+const guests=document.getElementById("guests").value;
+
+if(!checkin || !checkout){
+
+alert("Please select Check-in and Check-out");
+
+return;
+
+}
+
+try{
+
+const response=await fetch(WEBHOOK_URL,{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+checkin,
+
+checkout,
+
+guests
+
+})
+
+});
+
+rooms=await response.json();
+
+showRooms();
+
+}catch(err){
+
+console.error(err);
+
+alert("Cannot connect to server");
+
+}
+
+}
+    function showRooms(){
 
 const container=document.getElementById("roomsContainer");
 
 container.innerHTML="";
+
+if(rooms.length===0){
+
+container.innerHTML=`
+<div class="card">
+
+<h3>No Available Rooms</h3>
+
+</div>
+`;
+
+return;
+
+}
 
 rooms.forEach(room=>{
 
@@ -422,13 +468,24 @@ container.innerHTML+=`
 
 <div class="roomBody">
 
-<h3 class="roomTitle">${room.name}</h3>
+<h3 class="roomTitle">
+
+${room.name}
+
+</h3>
 
 <p>${room.guests} Guests</p>
 
-<p class="roomPrice">$${room.price} / Night</p>
+<p class="roomPrice">
 
-<button class="bookBtn"
+$${room.price}
+
+</p>
+
+<button
+
+class="bookBtn"
+
 onclick="bookRoom(${room.id})">
 
 Book Now
@@ -444,7 +501,6 @@ Book Now
 });
 
 }
-
 /* ---------- Booking ---------- */
 
 function bookRoom(id){
