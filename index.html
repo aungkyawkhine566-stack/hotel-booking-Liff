@@ -397,6 +397,7 @@ const WEBHOOK_URL =
 "https://sage-loon.pikapod.net/webhook-test/search-rooms";
 
 let rooms = [];
+let profile;
 
 /* ---------- Show Rooms ---------- */
 async function searchRooms(){
@@ -585,8 +586,7 @@ return;
 
 }
 
-const profile=await liff.getProfile();
-
+profile = await liff.getProfile();
 document.getElementById("profileContent").innerHTML=`
 
 <div style="text-align:center;">
