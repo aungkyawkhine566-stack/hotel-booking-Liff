@@ -546,6 +546,33 @@ async function bookRoom(id){
     showPage("bookings",
     document.querySelectorAll(".navItem")[1]);
 
+    async function loadBookings() {
+
+    const response = await fetch(
+        "https://sage-loon.pikapod.net/webhook-test/mybooking=" + profile.userId
+    );
+
+    const bookings = await response.json();
+
+    const bookingList = document.getElementById("bookingList");
+
+    bookingList.innerHTML = "";
+
+    bookings.forEach(b => {
+
+        bookingList.innerHTML += `
+        <div class="card">
+            <h3>Room ${b["Room No"]}</h3>
+            <p>Check-in : ${b["Check-in"]}</p>
+            <p>Check-out : ${b["Check-out"]}</p>
+            <p>Status : ${b.Status}</p>
+        </div>
+        `;
+
+    });
+
+}
+
 }
 /* ---------- Navigation ---------- */
 
