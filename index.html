@@ -520,7 +520,7 @@ async function bookRoom(id){
     const room = rooms.find(r => r.id === id);
 
     const response = await fetch(
-        "https://sage-loon.pikapod.net/webhook-test/book-room",
+        "https://sage-loon.pikapod.net/webhook-test/booking",
         {
             method: "POST",
             headers: {
