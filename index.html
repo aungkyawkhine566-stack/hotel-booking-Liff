@@ -256,6 +256,18 @@ line-height:1.6;
 
             </select>
 
+            <input
+    id="customerName"
+    class="input"
+    type="text"
+    placeholder="Customer Name">
+
+<input
+    id="phone"
+    class="input"
+    type="tel"
+    placeholder="Phone Number">
+
             <button
                 class="searchBtn"
                 onclick="searchRooms()">
@@ -503,46 +515,37 @@ Book Now
 }
 /* ---------- Booking ---------- */
 
-function bookRoom(id){
+async function bookRoom(id){
 
-const room=rooms.find(r=>r.id===id);
+    const room = rooms.find(r => r.id === id);
 
-localStorage.setItem(
-"selectedRoom",
-JSON.stringify(room)
-);
+    const response = await fetch(
+        "https://sage-loon.pikapod.net/webhook-test/book-room",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                roomNo: room.id,
+                customerName: document.getElementById("customerName").value,
+                lineUserId: profile.userId,
+                phone: document.getElementById("phone").value,
+                checkin: document.getElementById("checkin").value,
+                checkout: document.getElementById("checkout").value,
+                guests: document.getElementById("guests").value
+            })
+        }
+    );
 
-document.getElementById("bookingList").innerHTML=`
+    const result = await response.json();
 
-<h3>${room.name}</h3>
+    alert(result.message);
 
-<p>Guests : ${room.guests}</p>
-
-<p>Price : $${room.price}</p>
-
-`;
-
-document.getElementById("paymentContent").innerHTML=`
-
-<h3>${room.name}</h3>
-
-<p>Total : $${room.price}</p>
-
-<button class="bookBtn">
-
-Pay Now
-
-</button>
-
-`;
-
-alert(room.name+" Selected");
-
-showPage("bookings",
-document.querySelectorAll(".navItem")[1]);
+    showPage("bookings",
+    document.querySelectorAll(".navItem")[1]);
 
 }
-
 /* ---------- Navigation ---------- */
 
 function showPage(page,el){
