@@ -712,17 +712,57 @@ function showPayment(booking){
 
     showPage("payment");
 }
-    function confirmPayment(){
+    async function confirmPayment(){
 
     if(!selectedBooking){
         alert("Booking not selected");
         return;
     }
 
-    alert(
-        "Payment submitted for Booking ID: "
-        + selectedBooking["Booking ID"]
-    );
+    try {
+
+        const response = await fetch(
+            "https://sage-loon.pikapod.net/webhook-test/payment-submit",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    bookingId:
+                        selectedBooking["Booking ID"],
+
+                    roomNo:
+                        selectedBooking["Room No"],
+
+                    lineUserId:
+                        profile.userId,
+
+                    amount:
+                        selectedBooking["Amount"]
+
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        alert(
+            result.message ||
+            "Payment submitted successfully."
+        );
+
+    } catch(error) {
+
+        console.error(error);
+
+        alert(
+            "Cannot submit payment."
+        );
+    }
 }
 
 /* ---------- LIFF ---------- */
