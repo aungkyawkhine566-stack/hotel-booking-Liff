@@ -543,55 +543,112 @@ async function bookRoom(id){
 
     alert(result.message);
 
-    showPage("bookings",
-    document.querySelectorAll(".navItem")[1]);
+showPage(
+    "bookings",
+    document.querySelectorAll(".navItem")[1]
+);
 
-    async function loadBookings() {
+await loadBookings();
 
-    const response = await fetch(
-        "https://sage-loon.pikapod.net/webhook-test/mybooking=" + profile.userId
-    );
+   async function loadBookings() {
 
-    const bookings = await response.json();
+    try {
 
-    const bookingList = document.getElementById("bookingList");
+        const response = await fetch(
+            "https://sage-loon.pikapod.net/webhook-test/my-booking?userId="
+            + encodeURIComponent(profile.userId)
+        );
 
-    bookingList.innerHTML = "";
+        if (!response.ok) {
+            throw new Error("Failed to load bookings");
+        }
 
-    bookings.forEach(b => {
+        const bookings = await response.json();
 
-        bookingList.innerHTML += `
-        <div class="card">
-            <h3>Room ${b["Room No"]}</h3>
-            <p>Check-in : ${b["Check-in"]}</p>
-            <p>Check-out : ${b["Check-out"]}</p>
-            <p>Status : ${b.Status}</p>
-        </div>
-        `;
+        const bookingList =
+            document.getElementById("bookingList");
 
-    });
+        bookingList.innerHTML = "";
 
-}
+        if (!bookings || bookings.length === 0) {
 
+            bookingList.innerHTML =
+                "<p>No bookings yet.</p>";
+
+            return;
+        }
+
+        bookings.forEach(booking => {
+
+            bookingList.innerHTML += `
+                <div class="card">
+
+                    <h3>
+                        Room ${booking["Room No"]}
+                    </h3>
+
+                    <p>
+                        Booking ID:
+                        ${booking["Booking ID"]}
+                    </p>
+
+                    <p>
+                        Check-in:
+                        ${booking["Check-in"]}
+                    </p>
+
+                    <p>
+                        Check-out:
+                        ${booking["Check-out"]}
+                    </p>
+
+                    <p>
+                        Guests:
+                        ${booking["Guests"]}
+                    </p>
+
+                    <p>
+                        Status:
+                        ${booking["Status"]}
+                    </p>
+
+                </div>
+            `;
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("bookingList").innerHTML =
+            "<p>Unable to load bookings.</p>";
+
+    }
 }
 /* ---------- Navigation ---------- */
 
 function showPage(page,el){
 
-document.querySelectorAll(".page").forEach(p=>{
-p.classList.remove("active");
-});
+    document.querySelectorAll(".page").forEach(p=>{
+        p.classList.remove("active");
+    });
 
-document.querySelectorAll(".navItem").forEach(n=>{
-n.classList.remove("active");
-});
+    document.querySelectorAll(".navItem").forEach(n=>{
+        n.classList.remove("active");
+    });
 
-document.getElementById(page+"Page")
-.classList.add("active");
+    document.getElementById(page+"Page")
+    .classList.add("active");
 
-if(el){
-el.classList.add("active");
-}
+    if(el){
+        el.classList.add("active");
+    }
+
+    // Load bookings when opening My Bookings
+    if(page === "bookings"){
+        loadBookings();
+    }
 
 }
 
