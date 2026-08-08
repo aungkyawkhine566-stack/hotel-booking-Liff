@@ -628,6 +628,39 @@ async function bookRoom(id){
     }
 }
 
+    /* ---------- Navigation ---------- */
+
+function showPage(page, el){
+
+    // Hide all pages
+    document.querySelectorAll(".page").forEach(p => {
+        p.classList.remove("active");
+    });
+
+    // Remove active from all menu items
+    document.querySelectorAll(".navItem").forEach(n => {
+        n.classList.remove("active");
+    });
+
+    // Show selected page
+    const targetPage =
+        document.getElementById(page + "Page");
+
+    if(targetPage){
+        targetPage.classList.add("active");
+    }
+
+    // Active menu
+    if(el){
+        el.classList.add("active");
+    }
+
+    // Load user's bookings
+    if(page === "bookings"){
+        loadBookings();
+    }
+}
+
 /* ---------- LIFF ---------- */
 
 async function initLIFF(){
