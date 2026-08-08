@@ -311,24 +311,48 @@ line-height:1.6;
 <!-- PAYMENT PAGE -->
 <div id="paymentPage" class="page">
 
-    <main class="container">
+    <div class="card">
 
-        <div class="card">
+        <h2>💳 Payment</h2>
 
-            <h2>💳 Payment</h2>
+        <div id="paymentInfo"></div>
 
-            <div id="paymentContent">
+        <img
+            src="payment-qr.jpg"
+            alt="Thai QR Payment"
+            style="
+                width:280px;
+                max-width:100%;
+                display:block;
+                margin:20px auto;
+            "
+        >
 
-                <p>No payment pending.</p>
+        <h3>Bank Information</h3>
 
-            </div>
+        <p>
+            <b>Bank:</b> KBANK
+        </p>
 
-        </div>
+        <p>
+            <b>Account:</b> 2361772221
+        </p>
 
-    </main>
+        <p>
+            <b>Payment:</b> Thai QR / PromptPay
+        </p>
+
+        <button onclick="showPage('bookings')">
+            ← Back
+        </button>
+
+        <button onclick="confirmPayment()">
+            ✅ I Have Paid
+        </button>
+
+    </div>
 
 </div>
-
 <!-- PROFILE PAGE -->
 <div id="profilePage" class="page">
 
@@ -578,46 +602,51 @@ async function bookRoom(id){
             return;
         }
 
-        bookings.forEach(booking => {
+       bookings.forEach(booking => {
 
-            bookingList.innerHTML += `
-                <div class="card">
+    bookingList.innerHTML += `
+        <div class="card">
 
-                    <h3>Room ${booking["Room No"]}</h3>
+            <h3>🏨 Room ${booking["Room No"]}</h3>
 
-                    <p>
-                        Booking ID:
-                        ${booking["Booking ID"]}
-                    </p>
+            <p>
+                Booking ID:
+                ${booking["Booking ID"]}
+            </p>
 
-                    <p>
-                        Customer:
-                        ${booking["Customer Name"]}
-                    </p>
+            <p>
+                Check-in:
+                ${booking["Check-in"]}
+            </p>
 
-                    <p>
-                        Check-in:
-                        ${booking["Check-in"]}
-                    </p>
+            <p>
+                Check-out:
+                ${booking["Check-out"]}
+            </p>
 
-                    <p>
-                        Check-out:
-                        ${booking["Check-out"]}
-                    </p>
+            <p>
+                Guests:
+                ${booking["Guests"]}
+            </p>
 
-                    <p>
-                        Guests:
-                        ${booking["Guests"]}
-                    </p>
+            <p>
+                Amount:
+                ${booking["Amount"] || "0"} MMK
+            </p>
 
-                    <p>
-                        Status:
-                        ${booking["Status"]}
-                    </p>
+            <p>
+                Status:
+                ${booking["Status"]}
+            </p>
 
-                </div>
-            `;
-        });
+            <button
+                onclick='showPayment(${JSON.stringify(booking)})'>
+                💳 Pay Now
+            </button>
+
+        </div>
+    `;
+});
 
     } catch(error) {
 
@@ -632,17 +661,14 @@ async function bookRoom(id){
 
 function showPage(page, el){
 
-    // Hide all pages
     document.querySelectorAll(".page").forEach(p => {
         p.classList.remove("active");
     });
 
-    // Remove active from all menu items
     document.querySelectorAll(".navItem").forEach(n => {
         n.classList.remove("active");
     });
 
-    // Show selected page
     const targetPage =
         document.getElementById(page + "Page");
 
@@ -650,15 +676,53 @@ function showPage(page, el){
         targetPage.classList.add("active");
     }
 
-    // Active menu
     if(el){
         el.classList.add("active");
     }
 
-    // Load user's bookings
     if(page === "bookings"){
         loadBookings();
     }
+}
+    let selectedBooking = null;
+
+function showPayment(booking){
+
+    selectedBooking = booking;
+
+    const paymentInfo =
+        document.getElementById("paymentInfo");
+
+    paymentInfo.innerHTML = `
+        <p>
+            <b>Booking ID:</b>
+            ${booking["Booking ID"]}
+        </p>
+
+        <p>
+            <b>Room:</b>
+            ${booking["Room No"]}
+        </p>
+
+        <p>
+            <b>Amount:</b>
+            ${booking["Amount"] || "0"} MMK
+        </p>
+    `;
+
+    showPage("payment");
+}
+    function confirmPayment(){
+
+    if(!selectedBooking){
+        alert("Booking not selected");
+        return;
+    }
+
+    alert(
+        "Payment submitted for Booking ID: "
+        + selectedBooking["Booking ID"]
+    );
 }
 
 /* ---------- LIFF ---------- */
