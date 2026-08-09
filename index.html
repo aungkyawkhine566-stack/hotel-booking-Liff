@@ -585,6 +585,41 @@ async function bookRoom(id){
 
        bookings.forEach(booking => {
 
+    let paymentHTML = "";
+
+    const paymentStatus = booking["Payment Status"];
+
+    if (paymentStatus === "Paid") {
+
+        paymentHTML = `
+            <p style="color:green;font-weight:bold;">
+                ✅ Payment received successfully.
+            </p>
+
+            <p>
+                Paid At:
+                ${booking["Paid At"] || "-"}
+            </p>
+        `;
+
+    } else if (paymentStatus === "Payment Pending") {
+
+        paymentHTML = `
+            <p style="color:#f59e0b;font-weight:bold;">
+                ⏳ Payment is being verified
+            </p>
+        `;
+
+    } else {
+
+        paymentHTML = `
+            <button
+                onclick='showPayment(${JSON.stringify(booking)})'>
+                💳 Pay Now
+            </button>
+        `;
+    }
+
     bookingList.innerHTML += `
         <div class="card">
 
@@ -607,12 +642,12 @@ async function bookRoom(id){
 
             <p>
                 Guests:
-                ${booking["Guests"]}
+                ${booking["Guests"] || "-"}
             </p>
 
             <p>
                 Amount:
-                ${booking["Amount"] || "0"} MMK
+                ${booking["Amount"] || "0"} THB
             </p>
 
             <p>
@@ -620,10 +655,12 @@ async function bookRoom(id){
                 ${booking["Status"]}
             </p>
 
-            <button
-                onclick='showPayment(${JSON.stringify(booking)})'>
-                💳 Pay Now
-            </button>
+            <p>
+                Payment Status:
+                ${paymentStatus || "Unpaid"}
+            </p>
+
+            ${paymentHTML}
 
         </div>
     `;
