@@ -427,21 +427,13 @@ async function searchRooms(){
             })
         });
 
-        if(!response.ok){
-            throw new Error(`Server error: ${response.status}`);
-        }
-
         rooms = await response.json();
-        console.log("Server response:", rooms);
-
         showRooms();
 
     }catch(err){
-        console.error("Search error:", err);
+        console.error(err);
         alert("Cannot connect to server");
     }
-}
-
 }
    function showRooms(){
 
