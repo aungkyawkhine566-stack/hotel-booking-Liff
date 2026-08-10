@@ -456,68 +456,56 @@ alert("Cannot connect to server");
 }
 
 }
-    function showRooms(){
+   function showRooms(){
 
-const container=document.getElementById("roomsContainer");
+    const container =
+        document.getElementById("roomsContainer");
 
-container.innerHTML="";
+    container.innerHTML = "";
 
-if(rooms.length===0){
+    if(rooms.length === 0){
 
-container.innerHTML=`
-<div class="card">
+        container.innerHTML = `
+            <div class="card">
+                <h3>No Available Rooms</h3>
+            </div>
+        `;
 
-<h3>No Available Rooms</h3>
+        return;
+    }
 
-</div>
-`;
+    rooms.forEach(room => {
 
-return;
+        container.innerHTML += `
 
-}
+            <div class="roomCard">
 
-rooms.forEach(room=>{
+                <img src="${room.image}">
 
-container.innerHTML+=`
+                <div class="roomBody">
 
-<div class="roomCard">
+                    <h3 class="roomTitle">
+                        ${room.name}
+                    </h3>
 
-<img src="${room.image}">
+                    <p class="roomPrice">
+                        ${room.price} THB
+                    </p>
 
-<div class="roomBody">
+                    <button
+                        class="bookBtn"
+                        onclick="bookRoom(${room.id})">
 
-<h3 class="roomTitle">
+                        Book Now
 
-${room.name}
+                    </button>
 
-</h3>
+                </div>
 
-<p>${room.guests} Guests</p>
+            </div>
 
-<p class="roomPrice">
-
-$${room.price}
-
-</p>
-
-<button
-
-class="bookBtn"
-
-onclick="bookRoom(${room.id})">
-
-Book Now
-
-</button>
-
-</div>
-
-</div>
-
-`;
-
-});
-
+        `;
+    });
 }
 /* ---------- Booking ---------- */
 
@@ -640,10 +628,7 @@ async function bookRoom(id){
                 ${booking["Check-out"]}
             </p>
 
-            <p>
-                Guests:
-                ${booking["Guests"] || "-"}
-            </p>
+           
 
             <p>
                 Amount:
