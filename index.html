@@ -406,32 +406,40 @@ let rooms = [];
 let profile;
 
 /* ---------- Show Rooms ---------- */
-async function searchRooms(){
+async function searchRooms() {
     const checkin = document.getElementById("checkin").value;
     const checkout = document.getElementById("checkout").value;
 
-    if(!checkin || !checkout){
+    if (!checkin || !checkout) {
         alert("Please select Check-in and Check-out");
         return;
     }
 
-    try{
-        const response = await fetch(WEBHOOK_URL,{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
+    try {
+        const response = await fetch(WEBHOOK_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
             },
-            body:JSON.stringify({
-                checkin,
-                checkout
+            body: JSON.stringify({
+                checkin: checkin,
+                checkout: checkout
             })
         });
 
-        rooms = await response.json();
+        const data = await response.json();
+
+        console.log("n8n response:", data);
+
+        // n8n response ထဲက rooms ကိုယူ
+        rooms = data.rooms || [];
+
+        console.log("Rooms:", rooms);
+
         showRooms();
 
-    }catch(err){
-        console.error(err);
+    } catch (err) {
+        console.error("Search error:", err);
         alert("Cannot connect to server");
     }
 }
