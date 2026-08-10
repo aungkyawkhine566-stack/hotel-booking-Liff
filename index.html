@@ -407,52 +407,39 @@ let profile;
 
 /* ---------- Show Rooms ---------- */
 async function searchRooms(){
+    const checkin = document.getElementById("checkin").value;
+    const checkout = document.getElementById("checkout").value;
 
-const checkin=document.getElementById("checkin").value;
+    if(!checkin || !checkout){
+        alert("Please select Check-in and Check-out");
+        return;
+    }
 
-const checkout=document.getElementById("checkout").value;
+    try{
+        const response = await fetch(WEBHOOK_URL,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                checkin,
+                checkout
+            })
+        });
 
+        if(!response.ok){
+            throw new Error(`Server error: ${response.status}`);
+        }
 
+        rooms = await response.json();
+        console.log("Server response:", rooms);
 
-if(!checkin || !checkout){
+        showRooms();
 
-alert("Please select Check-in and Check-out");
-
-return;
-
-}
-
-try{
-
-const response=await fetch(WEBHOOK_URL,{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-checkin,
-
-checkout,
-
-
-})
-
-});
-
-rooms=await response.json();
-
-showRooms();
-
-}catch(err){
-
-console.error(err);
-
-alert("Cannot connect to server");
-
+    }catch(err){
+        console.error("Search error:", err);
+        alert("Cannot connect to server");
+    }
 }
 
 }
