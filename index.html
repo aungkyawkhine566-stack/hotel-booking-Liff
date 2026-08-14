@@ -715,61 +715,45 @@ function showPayment(booking){
 
         <p>
             <b>Amount:</b>
-            ${booking["Amount"] || "0"} MMK
+            ${booking["Amount"] || "0"} THB
         </p>
     `;
 
     showPage("payment");
 }
-    async function confirmPayment(){
-
-    if(!selectedBooking){
-        alert("Booking not selected");
-        return;
-    }
-
+  async function iHavePaid(bookingId) {
     try {
-
         const response = await fetch(
-            "https://sage-loon.pikapod.net/webhook-test/payment-submit",
+            "https://sage-loon.pikapod.net/webhook-test/payment-notification",
             {
                 method: "POST",
-
                 headers: {
                     "Content-Type": "application/json"
                 },
-
                 body: JSON.stringify({
-
-                    bookingId:
-                        selectedBooking["Booking ID"],
-
-                    roomNo:
-                        selectedBooking["Room No"],
-
-                    lineUserId:
-                        profile.userId,
-
-                    amount:
-                        selectedBooking["Amount"]
-
+                    bookingId: bookingId
                 })
             }
         );
+
+        if (!response.ok) {
+            throw new Error(
+                `Payment notification failed: ${response.status}`
+            );
+        }
 
         const result = await response.json();
 
         alert(
             result.message ||
-            "Payment submitted successfully."
+            "Payment is being verified."
         );
 
-    } catch(error) {
-
-        console.error(error);
+    } catch (error) {
+        console.error("Payment notification error:", error);
 
         alert(
-            "Cannot submit payment."
+            "Cannot send payment notification."
         );
     }
 }
