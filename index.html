@@ -773,32 +773,6 @@ function showPayment(booking){
         );
     }
 }
-    async function iHavePaid(bookingId) {
-    try {
-        const response = await fetch(
-            "https://sage-loon.pikapod.net/webhook-test/ payment-notification",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    bookingId: bookingId
-                })
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error("Payment notification failed");
-        }
-
-        alert("Payment is being verified.");
-
-    } catch (error) {
-        console.error(error);
-        alert("Cannot send payment notification.");
-    }
-}
 
 /* ---------- LIFF ---------- */
 
