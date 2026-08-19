@@ -489,9 +489,20 @@
   <div class="room">
     <div><strong id="roomType">Room</strong></div>
     <div>Room No: <span id="roomNo">-</span></div>
-    <div>Check-in: <span id="checkIn">-</span></div>
-    <div>Check-out: <span id="checkOut">-</span></div>
-    <div>Price: <span id="price">0</span> MMK / night</div>
+   <label>Check-in *</label>
+<input
+  id="checkInInput"
+  type="date"
+  required
+>
+
+<label>Check-out *</label>
+<input
+  id="checkOutInput"
+  type="date"
+  required
+>
+    <div>Price: <span id="price">0</span> THB / night</div>
   </div>
 
   <label>Customer Name *</label>
@@ -562,7 +573,7 @@
 
     <div class="summary-row total-row">
       <span>Total</span>
-      <strong id="paymentTotal">0 MMK</strong>
+      <strong id="paymentTotal">0 THB</strong>
     </div>
 
   </div>
@@ -725,8 +736,8 @@ async function init() {
     roomNo: params.get("roomNo") || "",
     roomType: params.get("roomType") || "",
     price: Number(params.get("price") || 0),
-    checkIn: params.get("checkIn") || "",
-    checkOut: params.get("checkOut") || ""
+    checkIn: "",
+    checkOut: ""
   };
 
   document.getElementById("roomType").textContent =
@@ -749,36 +760,61 @@ async function init() {
 
 function calculateTotal() {
 
-  if (!bookingData.checkIn ||
-      !bookingData.checkOut) {
-    document.getElementById("total").textContent =
-      "0";
+  const checkIn =
+    document.getElementById("checkInInput").value;
+
+  const checkOut =
+    document.getElementById("checkOutInput").value;
+
+  if (!checkIn || !checkOut) {
+    document.getElementById("total").textContent = "0";
     return;
   }
 
-  const start =
-    new Date(bookingData.checkIn);
+  const start = new Date(checkIn);
+  const end = new Date(checkOut);
 
-  const end =
-    new Date(bookingData.checkOut);
+  const nights = Math.ceil(
+    (end - start) /
+    (1000 * 60 * 60 * 24)
+  );
 
-  const nights =
-    Math.ceil(
-      (end - start) /
-      (1000 * 60 * 60 * 24)
-    );
+  if (nights <= 0) {
+    document.getElementById("total").textContent = "0";
+    return;
+  }
 
   const total =
-    Math.max(nights, 0) *
-    bookingData.price;
+    nights * bookingData.price;
 
   document.getElementById("total").textContent =
     total.toLocaleString();
 
-  bookingData.nights = Math.max(nights, 0);
+  bookingData.checkIn = checkIn;
+  bookingData.checkOut = checkOut;
+  bookingData.nights = nights;
   bookingData.total = total;
 }
+  document
+  .getElementById("checkInInput")
+  .addEventListener("change", function() {
 
+    const checkIn = this.value;
+
+    document.getElementById("checkOutInput").min =
+      checkIn;
+
+    calculateTotal();
+  });
+
+
+document
+  .getElementById("checkOutInput")
+  .addEventListener("change", function() {
+
+    calculateTotal();
+
+  });
 async function submitBooking() {
 
   const customerName =
@@ -879,7 +915,10 @@ init();
     alert("Please enter your phone number.");
     return;
   }
+const today = new Date().toISOString().split("T")[0];
 
+document.getElementById("checkInInput").min = today;
+document.getElementById("checkOutInput").min = today;
 
   // Update payment summary
 
