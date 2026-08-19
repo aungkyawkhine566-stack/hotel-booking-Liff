@@ -70,6 +70,413 @@
       font-size: 18px;
       font-weight: bold;
     }
+    /* ================================
+   PAYMENT UI
+================================ */
+
+.payment-section {
+  margin-top: 24px;
+  padding: 20px;
+
+  background: #f7f8fa;
+  border-radius: 24px;
+}
+
+
+/* Header */
+
+.payment-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.payment-icon {
+  width: 46px;
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #111827;
+  color: white;
+
+  border-radius: 14px;
+
+  font-size: 22px;
+}
+
+.payment-header h2 {
+  margin: 0;
+
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.payment-header p {
+  margin: 4px 0 0;
+
+  color: #6b7280;
+  font-size: 13px;
+}
+
+
+/* Summary */
+
+.payment-summary {
+  background: white;
+
+  padding: 16px;
+
+  border-radius: 18px;
+
+  margin-bottom: 14px;
+
+  box-shadow:
+    0 4px 14px rgba(0,0,0,0.05);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+
+  padding: 9px 0;
+
+  font-size: 14px;
+}
+
+.summary-row span {
+  color: #6b7280;
+}
+
+.summary-row strong {
+  color: #111827;
+}
+
+.total-row {
+  margin-top: 6px;
+
+  padding-top: 14px;
+
+  border-top: 1px solid #eee;
+
+  font-size: 17px;
+}
+
+.total-row strong {
+  font-size: 19px;
+}
+
+
+/* Bank */
+
+.bank-card {
+  background: white;
+
+  padding: 18px;
+
+  border-radius: 18px;
+
+  margin-bottom: 14px;
+
+  box-shadow:
+    0 4px 14px rgba(0,0,0,0.05);
+}
+
+.bank-title {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 16px;
+}
+
+.bank-logo {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: #e8f5e9;
+
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.bank-title h3 {
+  margin: 0;
+
+  font-size: 17px;
+}
+
+.bank-title p {
+  margin: 3px 0 0;
+
+  font-size: 12px;
+
+  color: #6b7280;
+}
+
+
+/* Account */
+
+.account-box {
+  padding: 14px;
+
+  background: #f3f4f6;
+
+  border-radius: 14px;
+}
+
+.account-label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+.account-number-row {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+.account-number-row strong {
+  font-size: 20px;
+
+  letter-spacing: 1px;
+}
+
+.copy-button {
+  border: none;
+
+  padding: 7px 12px;
+
+  border-radius: 9px;
+
+  background: #111827;
+
+  color: white;
+
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.payment-note {
+  margin: 12px 0 0;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+
+  color: #6b7280;
+}
+
+
+/* QR */
+
+.qr-card {
+  background: white;
+
+  padding: 20px;
+
+  border-radius: 18px;
+
+  text-align: center;
+
+  margin-bottom: 14px;
+
+  box-shadow:
+    0 4px 14px rgba(0,0,0,0.05);
+}
+
+.qr-card h3 {
+  margin: 0;
+
+  font-size: 17px;
+}
+
+.qr-card p {
+  margin: 6px 0 14px;
+
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+.qr-wrapper {
+  display: inline-flex;
+
+  padding: 12px;
+
+  background: white;
+
+  border-radius: 16px;
+
+  border: 1px solid #eee;
+}
+
+.qr-wrapper img {
+  width: 220px;
+
+  height: 220px;
+
+  object-fit: contain;
+
+  border-radius: 8px;
+}
+
+.qr-help {
+  margin-bottom: 0 !important;
+}
+
+
+/* Slip */
+
+.slip-card {
+  background: white;
+
+  padding: 18px;
+
+  border-radius: 18px;
+
+  margin-bottom: 16px;
+
+  box-shadow:
+    0 4px 14px rgba(0,0,0,0.05);
+}
+
+.slip-card h3 {
+  margin: 0;
+
+  font-size: 17px;
+}
+
+.slip-card p {
+  margin: 5px 0 14px;
+
+  font-size: 12px;
+
+  color: #6b7280;
+}
+
+.upload-box {
+  min-height: 110px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 6px;
+
+  border: 2px dashed #d1d5db;
+
+  border-radius: 16px;
+
+  cursor: pointer;
+
+  background: #fafafa;
+}
+
+.upload-icon {
+  font-size: 28px;
+}
+
+.upload-box span {
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+.upload-box small {
+  color: #9ca3af;
+
+  font-size: 11px;
+}
+
+
+/* Slip Preview */
+
+.slip-preview {
+  width: 100%;
+
+  margin-top: 12px;
+
+  border-radius: 14px;
+
+  max-height: 300px;
+
+  object-fit: contain;
+}
+
+
+/* Submit */
+
+.payment-submit {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 16px 18px;
+
+  border: none;
+
+  border-radius: 16px;
+
+  background: #111827;
+
+  color: white;
+
+  font-size: 16px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.payment-submit:active {
+  transform: scale(0.98);
+}
+
+.arrow {
+  font-size: 22px;
+}
+
+
+/* Secure */
+
+.secure-note {
+  text-align: center;
+
+  margin: 12px 0 0;
+
+  color: #6b7280;
+
+  font-size: 11px;
+}
   </style>
 </head>
 
@@ -115,6 +522,185 @@
   </button>
 
 </div>
+  <!-- ================================
+     PAYMENT SECTION
+================================ -->
+
+<section class="payment-section">
+
+  <div class="payment-header">
+    <div class="payment-icon">💳</div>
+
+    <div>
+      <h2>Payment</h2>
+      <p>Complete your payment to confirm booking</p>
+    </div>
+  </div>
+
+
+  <!-- Payment Summary -->
+  <div class="payment-summary">
+
+    <div class="summary-row">
+      <span>Room</span>
+      <strong id="paymentRoom">-</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Check-in</span>
+      <strong id="paymentCheckIn">-</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Check-out</span>
+      <strong id="paymentCheckOut">-</strong>
+    </div>
+
+    <div class="summary-row total-row">
+      <span>Total</span>
+      <strong id="paymentTotal">0 MMK</strong>
+    </div>
+
+  </div>
+
+
+  <!-- KBank -->
+  <div class="bank-card">
+
+    <div class="bank-title">
+      <span class="bank-logo">K</span>
+
+      <div>
+        <h3>KBank</h3>
+        <p>Bank Transfer</p>
+      </div>
+    </div>
+
+
+    <div class="account-box">
+
+      <span class="account-label">
+        Bank Account
+      </span>
+
+      <div class="account-number-row">
+
+        <strong id="bankAccount">
+          2361772221
+        </strong>
+
+        <button
+          type="button"
+          class="copy-button"
+          onclick="copyAccountNumber()"
+        >
+          Copy
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <p class="payment-note">
+      Please transfer the exact booking amount
+      to the KBank account above.
+    </p>
+
+  </div>
+
+
+  <!-- QR Payment -->
+  <div class="qr-card">
+
+    <h3>Scan QR to Pay</h3>
+
+    <p>
+      Scan the QR code using your banking app
+    </p>
+
+    <div class="qr-wrapper">
+
+      <img
+        id="paymentQR"
+        src="YOUR_KBANK_QR_IMAGE_URL"
+        alt="KBank Payment QR"
+      />
+
+    </div>
+
+    <p class="qr-help">
+      After payment, upload your payment slip below.
+    </p>
+
+  </div>
+
+
+  <!-- Upload Slip -->
+  <div class="slip-card">
+
+    <h3>Payment Slip</h3>
+
+    <p>
+      Upload your payment receipt
+    </p>
+
+    <label
+      for="paymentSlip"
+      class="upload-box"
+    >
+
+      <span class="upload-icon">
+        📷
+      </span>
+
+      <span id="uploadText">
+        Tap to upload payment slip
+      </span>
+
+      <small>
+        JPG, PNG up to 5MB
+      </small>
+
+    </label>
+
+    <input
+      type="file"
+      id="paymentSlip"
+      accept="image/jpeg,image/png,image/webp"
+      hidden
+    />
+
+    <img
+      id="slipPreview"
+      class="slip-preview"
+      style="display:none;"
+    />
+
+  </div>
+
+
+  <!-- Submit -->
+  <button
+    type="button"
+    class="payment-submit"
+    onclick="submitBooking()"
+  >
+
+    <span>Confirm Payment</span>
+
+    <span class="arrow">
+      →
+    </span>
+
+  </button>
+
+
+  <p class="secure-note">
+    🔒 Your booking will be confirmed after payment verification.
+  </p>
+
+</section>
 
 <script>
 
@@ -275,6 +861,82 @@ async function submitBooking() {
 }
 
 init();
+
+  // ================================
+// COPY KBank ACCOUNT
+// ================================
+
+function copyAccountNumber() {
+
+  const account =
+    document.getElementById("bankAccount").innerText.trim();
+
+  navigator.clipboard.writeText(account);
+
+  const button =
+    document.querySelector(".copy-button");
+
+  const oldText = button.innerText;
+
+  button.innerText = "Copied";
+
+  setTimeout(() => {
+    button.innerText = oldText;
+  }, 1500);
+}
+
+
+// ================================
+// PAYMENT SLIP PREVIEW
+// ================================
+
+document
+  .getElementById("paymentSlip")
+  .addEventListener("change", function(event) {
+
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+
+    // 5MB limit
+
+    if (file.size > 5 * 1024 * 1024) {
+
+      alert("Payment slip must be under 5MB.");
+
+      event.target.value = "";
+
+      return;
+    }
+
+
+    const preview =
+      document.getElementById("slipPreview");
+
+    const uploadText =
+      document.getElementById("uploadText");
+
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload = function(e) {
+
+      preview.src = e.target.result;
+
+      preview.style.display = "block";
+
+      uploadText.innerText =
+        file.name;
+
+    };
+
+
+    reader.readAsDataURL(file);
+
+  });
 
 </script>
 
