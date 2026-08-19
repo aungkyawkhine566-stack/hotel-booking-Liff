@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C PARK Hotel Booking</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+*{box-sizing:border-box}
+body{font-family:Arial,sans-serif;margin:0;padding:20px;background:#f5f5f5;color:#111827}
+.card,.payment-section{background:#fff;border-radius:20px;padding:20px;max-width:500px;margin:auto}
+.room{padding:15px;background:#f5f5f5;border-radius:14px;margin-bottom:20px}
+label{display:block;margin:14px 0 6px;font-weight:700}
+input,select,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:9px;font-size:16px}
+button{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12px;font-size:17px;font-weight:700;cursor:pointer}
+.confirm{background:#06c755;color:white}
+.total{margin-top:20px;padding:15px;background:#f5f5f5;border-radius:12px;font-size:18px;font-weight:700}
+.payment-section{display:none;margin-top:20px;background:#f7f8fa}
+.payment-header{display:flex;gap:14px;align-items:center;margin-bottom:18px}
+.payment-icon{width:46px;height:46px;border-radius:14px;background:#111827;color:white;display:flex;align-items:center;justify-content:center;font-size:22px}
+.payment-header h2{margin:0}.payment-header p{margin:4px 0 0;color:#6b7280;font-size:13px}
+.payment-summary,.bank-card,.qr-card,.slip-card{background:#fff;padding:18px;border-radius:18px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.05)}
+.summary-row{display:flex;justify-content:space-between;padding:9px 0;font-size:14px}
+.summary-row span{color:#6b7280}.total-row{border-top:1px solid #eee;margin-top:6px;padding-top:14px}
+.bank-title{display:flex;gap:12px;align-items:center}.bank-logo{width:42px;height:42px;border-radius:12px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px}
+.bank-title h3{margin:0}.bank-title p{margin:3px 0;color:#6b7280;font-size:12px}
+.account-box{margin-top:16px;padding:14px;background:#f3f4f6;border-radius:14px}
+.account-number-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.account-number-row strong{font-size:20px;letter-spacing:1px}
+.copy-button{width:auto;margin:0;padding:8px 12px;background:#111827;color:white;font-size:12px}
+.payment-note,.qr-card p,.slip-card p{color:#6b7280;font-size:12px;line-height:1.5}
+.qr-card{text-align:center}.qr-wrapper{display:inline-flex;padding:12px;background:white;border-radius:16px;border:1px solid #eee}
+.qr-wrapper img{width:220px;height:220px;object-fit:contain;border-radius:8px}
+.upload-box{min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:2px dashed #d1d5db;border-radius:16px;cursor:pointer;background:#fafafa}
+.upload-box span{font-weight:600}.upload-box small{color:#9ca3af}
+.slip-preview{width:100%;margin-top:12px;border-radius:14px;max-height:300px;object-fit:contain}
+.payment-submit{display:flex;align-items:center;justify-content:space-between;background:#111827;color:white}
+.secure-note{text-align:center;color:#6b7280;font-size:11px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="card" id="bookingCard">
+<h2>C PARK Hotel Booking</h2>
+
+<div class="room">
+  <div><strong id="roomType">Room</strong></div>
+  <div>Room No: <span id="roomNo">-</span></div>
+  <div>Price: <span id="price">0</span> MMK / night</div>
+</div>
+
+<label>Check-in *</label>
+<input id="checkInInput" type="date" required>
+
+<label>Check-out *</label>
+<input id="checkOutInput" type="date" required>
+
+<label>Customer Name *</label>
+<input id="customerName" type="text" placeholder="Enter your name">
+
+<label>Phone Number *</label>
+<input id="phone" type="tel" placeholder="09xxxxxxxxx">
+
+<label>Number of Guests *</label>
+<select id="guests">
+  <option value="1">1 Guest</option>
+  <option value="2">2 Guests</option>
+  <option value="3">3 Guests</option>
+  <option value="4">4 Guests</option>
+</select>
+
+<label>Special Request</label>
+<textarea id="specialRequest" rows="3" placeholder="Optional"></textarea>
+
+<div class="total">Total: <span id="total">0</span> MMK</div>
+
+<button type="button" class="confirm" onclick="showPayment()">
+  CONFIRM & PAY →
+</button>
+</div>
+
+<section id="paymentSection" class="payment-section">
+<div class="payment-header">
+  <div class="payment-icon">💳</div>
+  <div>
+    <h2>Payment</h2>
+    <p>Complete your payment to confirm booking</p>
+  </div>
+</div>
+
+<div class="payment-summary">
+  <div class="summary-row"><span>Room</span><strong id="paymentRoom">-</strong></div>
+  <div class="summary-row"><span>Check-in</span><strong id="paymentCheckIn">-</strong></div>
+  <div class="summary-row"><span>Check-out</span><strong id="paymentCheckOut">-</strong></div>
+  <div class="summary-row total-row"><span>Total</span><strong id="paymentTotal">0 MMK</strong></div>
+</div>
+
+<div class="bank-card">
+  <div class="bank-title">
+    <span class="bank-logo">K</span>
+    <div><h3>KBank</h3><p>Bank Transfer</p></div>
+  </div>
+  <div class="account-box">
+    <small>Bank Account</small>
+    <div class="account-number-row">
+      <strong id="bankAccount">2361772221</strong>
+      <button type="button" class="copy-button" onclick="copyAccountNumber()">Copy</button>
+    </div>
+  </div>
+  <p class="payment-note">Please transfer the exact booking amount to the KBank account above.</p>
+</div>
+
+<div class="qr-card">
+  <h3>Scan QR to Pay</h3>
+  <p>Scan the QR code using your banking app</p>
+  <div class="qr-wrapper">
+    <img id="paymentQR" src="YOUR_KBANK_QR_IMAGE_URL" alt="KBank Payment QR">
+  </div>
+  <p>After payment, upload your payment slip below.</p>
+</div>
+
+<div class="slip-card">
+  <h3>Payment Slip</h3>
+  <p>Upload your payment receipt</p>
+  <label for="paymentSlip" class="upload-box">
+    <span>📷</span>
+    <span id="uploadText">Tap to upload payment slip</span>
+    <small>JPG, PNG, WEBP up to 5MB</small>
+  </label>
+  <input type="file" id="paymentSlip" accept="image/jpeg,image/png,image/webp" hidden>
+  <img id="slipPreview" class="slip-preview" style="display:none">
+</div>
+
+<button type="button" class="payment-submit" onclick="submitPayment()">
+  <span>CONFIRM PAYMENT</span><span>→</span>
+</button>
+<p class="secure-note">🔒 Booking remains pending until payment is verified.</p>
+</section>
+
+<script>
+const LIFF_ID = "2011160557-ZKTWIJi0";
+const BOOKING_WEBHOOK = "https://sage-loon.pikapod.net/webhook/hotel-booking";
+
+let bookingData = {};
+let liffProfile = null;
+
+async function init() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+
+    const params = new URLSearchParams(window.location.search);
+
+    bookingData = {
+      roomId: params.get("roomId") || "",
+      roomNo: params.get("roomNo") || "",
+      roomType: params.get("roomType") || "",
+      price: Number(params.get("price") || 0),
+      checkIn: "",
+      checkOut: "",
+      nights: 0,
+      total: 0
+    };
+
+    document.getElementById("roomType").textContent = bookingData.roomType || "Room";
+    document.getElementById("roomNo").textContent = bookingData.roomNo || "-";
+    document.getElementById("price").textContent = bookingData.price.toLocaleString();
+
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("checkInInput").min = today;
+    document.getElementById("checkOutInput").min = today;
+
+    if (liff.isLoggedIn()) {
+      try { liffProfile = await liff.getProfile(); } catch(e) {}
+    }
+  } catch (error) {
+    console.error(error);
+    alert("LIFF initialization failed.");
+  }
+}
+
+function calculateTotal() {
+  const checkIn = document.getElementById("checkInInput").value;
+  const checkOut = document.getElementById("checkOutInput").value;
+
+  bookingData.checkIn = checkIn;
+  bookingData.checkOut = checkOut;
+
+  if (!checkIn || !checkOut) {
+    bookingData.nights = 0;
+    bookingData.total = 0;
+    document.getElementById("total").textContent = "0";
+    return;
+  }
+
+  const start = new Date(checkIn + "T00:00:00");
+  const end = new Date(checkOut + "T00:00:00");
+  const nights = Math.ceil((end - start) / 86400000);
+
+  if (nights <= 0) {
+    bookingData.nights = 0;
+    bookingData.total = 0;
+    document.getElementById("total").textContent = "0";
+    return;
+  }
+
+  bookingData.nights = nights;
+  bookingData.total = nights * bookingData.price;
+  document.getElementById("total").textContent =
+    bookingData.total.toLocaleString();
+}
+
+document.getElementById("checkInInput").addEventListener("change", function() {
+  document.getElementById("checkOutInput").min = this.value;
+  calculateTotal();
+});
+
+document.getElementById("checkOutInput").addEventListener("change", calculateTotal);
+
+function showPayment() {
+  calculateTotal();
+
+  const customerName = document.getElementById("customerName").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+
+  if (!bookingData.checkIn || !bookingData.checkOut || bookingData.nights <= 0) {
+    alert("Please select a valid check-in and check-out date.");
+    return;
+  }
+
+  if (!customerName) {
+    alert("Please enter your name.");
+    return;
+  }
+
+  if (!phone) {
+    alert("Please enter your phone number.");
+    return;
+  }
+
+  document.getElementById("paymentRoom").textContent =
+    `${bookingData.roomNo} • ${bookingData.roomType}`;
+
+  document.getElementById("paymentCheckIn").textContent = bookingData.checkIn;
+  document.getElementById("paymentCheckOut").textContent = bookingData.checkOut;
+  document.getElementById("paymentTotal").textContent =
+    `${bookingData.total.toLocaleString()} MMK`;
+
+  document.getElementById("bookingCard").style.display = "none";
+  document.getElementById("paymentSection").style.display = "block";
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+async function submitPayment() {
+  const customerName = document.getElementById("customerName").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const guests = Number(document.getElementById("guests").value);
+  const specialRequest = document.getElementById("specialRequest").value.trim();
+  const slipFile = document.getElementById("paymentSlip").files[0];
+
+  if (!slipFile) {
+    alert("Please upload your payment slip.");
+    return;
+  }
+
+  if (slipFile.size > 5 * 1024 * 1024) {
+    alert("Payment slip must be under 5MB.");
+    return;
+  }
+
+  /*
+    IMPORTANT:
+    This version sends booking data only.
+    The image file is NOT uploaded to n8n yet.
+    To save the actual slip, create a separate upload endpoint
+    or use multipart/form-data on the n8n webhook.
+  */
+
+  const payload = {
+    roomId: bookingData.roomId,
+    roomNo: bookingData.roomNo,
+    roomType: bookingData.roomType,
+    checkIn: bookingData.checkIn,
+    checkOut: bookingData.checkOut,
+    price: bookingData.price,
+    nights: bookingData.nights,
+    total: bookingData.total,
+    customerName,
+    phone,
+    guests,
+    specialRequest,
+    lineUserId: liffProfile?.userId || "",
+    lineDisplayName: liffProfile?.displayName || "",
+    status: "PENDING_PAYMENT"
+  };
+
+  try {
+    const response = await fetch(BOOKING_WEBHOOK, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error("Webhook request failed");
+    }
+
+    let result = {};
+    try { result = await response.json(); } catch(e) {}
+
+    alert("Booking submitted successfully. Payment is pending verification.");
+    console.log(result);
+  } catch (error) {
+    console.error(error);
+    alert("Booking submission failed. Please try again.");
+  }
+}
+
+function copyAccountNumber() {
+  const account = document.getElementById("bankAccount").innerText.trim();
+  navigator.clipboard.writeText(account).then(() => {
+    const button = document.querySelector(".copy-button");
+    const oldText = button.innerText;
+    button.innerText = "Copied";
+    setTimeout(() => button.innerText = oldText, 1500);
+  }).catch(() => alert("Copy failed."));
+}
+
+document.getElementById("paymentSlip").addEventListener("change", function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert("Payment slip must be under 5MB.");
+    event.target.value = "";
+    return;
+  }
+
+  const preview = document.getElementById("slipPreview");
+  const uploadText = document.getElementById("uploadText");
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    preview.src = e.target.result;
+    preview.style.display = "block";
+    uploadText.textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+});
+
+init();
+</script>
+</body>
+</html>
