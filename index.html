@@ -526,7 +526,11 @@
      PAYMENT SECTION
 ================================ -->
 
-<section class="payment-section">
+<section
+  id="paymentSection"
+  class="payment-section"
+  style="display: none;"
+>
 
   <div class="payment-header">
     <div class="payment-icon">💳</div>
@@ -681,19 +685,14 @@
 
 
   <!-- Submit -->
-  <button
-    type="button"
-    class="payment-submit"
-    onclick="submitBooking()"
-  >
-
-    <span>Confirm Payment</span>
-
-    <span class="arrow">
-      →
-    </span>
-
-  </button>
+<button
+  type="button"
+  class="payment-submit"
+  onclick="submitBooking()"
+>
+  <span>CONFIRM PAYMENT</span>
+  <span class="arrow">→</span>
+</button>
 
 
   <p class="secure-note">
@@ -861,6 +860,62 @@ async function submitBooking() {
 }
 
 init();
+  function showPayment() {
+
+  // Validate customer information first
+
+  const customerName =
+    document.getElementById("customerName").value.trim();
+
+  const phone =
+    document.getElementById("phone").value.trim();
+
+  if (!customerName) {
+    alert("Please enter your name.");
+    return;
+  }
+
+  if (!phone) {
+    alert("Please enter your phone number.");
+    return;
+  }
+
+
+  // Update payment summary
+
+  document.getElementById("paymentRoom").textContent =
+    `${bookingData.roomNo} • ${bookingData.roomType}`;
+
+  document.getElementById("paymentCheckIn").textContent =
+    bookingData.checkIn;
+
+  document.getElementById("paymentCheckOut").textContent =
+    bookingData.checkOut;
+
+  document.getElementById("paymentTotal").textContent =
+    `${bookingData.total.toLocaleString()} MMK`;
+
+
+  // Hide booking form
+
+  document.querySelector(".card").style.display =
+    "none";
+
+
+  // Show payment
+
+  document.getElementById("paymentSection").style.display =
+    "block";
+
+
+  // Scroll to payment
+
+  document.getElementById("paymentSection")
+    .scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+}
 
   // ================================
 // COPY KBank ACCOUNT
