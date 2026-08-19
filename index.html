@@ -252,11 +252,24 @@ function showPayment() {
 }
 
 async function submitPayment() {
-  const customerName = document.getElementById("customerName").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const guests = Number(document.getElementById("guests").value);
-  const specialRequest = document.getElementById("specialRequest").value.trim();
-  const slipFile = document.getElementById("paymentSlip").files[0];
+  const customerName =
+    document.getElementById("customerName").value.trim();
+
+  const phone =
+    document.getElementById("phone").value.trim();
+
+  const guests =
+    Number(document.getElementById("guests").value);
+
+  const specialRequest =
+    document.getElementById("specialRequest").value.trim();
+
+  const slipFile =
+    document.getElementById("paymentSlip").files[0];
+
+  // -------------------------
+  // Validate
+  // -------------------------
 
   if (!slipFile) {
     alert("Please upload your payment slip.");
@@ -268,52 +281,121 @@ async function submitPayment() {
     return;
   }
 
-  /*
-    IMPORTANT:
-    This version sends booking data only.
-    The image file is NOT uploaded to n8n yet.
-    To save the actual slip, create a separate upload endpoint
-    or use multipart/form-data on the n8n webhook.
-  */
+  // -------------------------
+  // Convert image to Base64
+  // -------------------------
+
+  const slipBase64 = await fileToBase64(slipFile);
+
+  // -------------------------
+  // Booking Payload
+  // -------------------------
 
   const payload = {
+
     roomId: bookingData.roomId,
     roomNo: bookingData.roomNo,
     roomType: bookingData.roomType,
+
     checkIn: bookingData.checkIn,
     checkOut: bookingData.checkOut,
+
     price: bookingData.price,
     nights: bookingData.nights,
     total: bookingData.total,
+
     customerName,
     phone,
     guests,
     specialRequest,
-    lineUserId: liffProfile?.userId || "",
-    lineDisplayName: liffProfile?.displayName || "",
-    status: "PENDING_PAYMENT"
+
+    lineUserId:
+      liffProfile?.userId || "",
+
+    lineDisplayName:
+      liffProfile?.displayName || "",
+
+    status: "PENDING_PAYMENT",
+
+    // Payment Slip
+    paymentSlip: slipBase64,
+
+    paymentSlipName: slipFile.name,
+
+    paymentSlipType: slipFile.type
   };
 
+  // -------------------------
+  // Send to n8n
+  // -------------------------
+
   try {
-    const response = await fetch(BOOKING_WEBHOOK, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(payload)
-    });
+
+    const response = await fetch(
+      BOOKING_WEBHOOK,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(payload)
+      }
+    );
 
     if (!response.ok) {
-      throw new Error("Webhook request failed");
+      throw new Error(
+        "Webhook request failed"
+      );
     }
 
     let result = {};
-    try { result = await response.json(); } catch(e) {}
 
-    alert("Booking submitted successfully. Payment is pending verification.");
+    try {
+      result = await response.json();
+    } catch (e) {}
+
+    alert(
+      "Booking submitted successfully.\n\n" +
+      "Payment slip received.\n" +
+      "Your booking is pending payment verification."
+    );
+
     console.log(result);
+
   } catch (error) {
+
     console.error(error);
-    alert("Booking submission failed. Please try again.");
+
+    alert(
+      "Booking submission failed.\n\n" +
+      "Please try again."
+    );
   }
+}
+
+
+// -------------------------
+// FILE → BASE64
+// -------------------------
+
+function fileToBase64(file) {
+
+  return new Promise(
+    (resolve, reject) => {
+
+      const reader =
+        new FileReader();
+
+      reader.onload = () =>
+        resolve(reader.result);
+
+      reader.onerror = reject;
+
+      reader.readAsDataURL(file);
+    }
+  );
 }
 
 function copyAccountNumber() {
