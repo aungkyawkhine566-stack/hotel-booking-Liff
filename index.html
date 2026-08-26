@@ -528,7 +528,7 @@
 
 <body>
 
-<div class="card">
+<div class="card" id="bookingCard">
 
   <h2>C PARK Hotel Booking</h2>
 
@@ -1227,14 +1227,21 @@ async function submitBooking() {
 
 init();
   function showPayment() {
-
-  // Validate customer information first
+  calculateTotal();
 
   const customerName =
     document.getElementById("customerName").value.trim();
 
   const phone =
     document.getElementById("phone").value.trim();
+
+  if (!bookingData.checkIn ||
+      !bookingData.checkOut ||
+      bookingData.nights <= 0) {
+
+    alert("Please select a valid check-in and check-out date.");
+    return;
+  }
 
   if (!customerName) {
     alert("Please enter your name.");
@@ -1245,12 +1252,6 @@ init();
     alert("Please enter your phone number.");
     return;
   }
-const today = new Date().toISOString().split("T")[0];
-
-document.getElementById("checkInInput").min = today;
-document.getElementById("checkOutInput").min = today;
-
-  // Update payment summary
 
   document.getElementById("paymentRoom").textContent =
     `${bookingData.roomNo} • ${bookingData.roomType}`;
@@ -1264,26 +1265,14 @@ document.getElementById("checkOutInput").min = today;
   document.getElementById("paymentTotal").textContent =
     `${bookingData.total.toLocaleString()} MMK`;
 
+  document.getElementById("bookingCard").style.display = "none";
 
-  // Hide booking form
+  document.getElementById("paymentSection").style.display = "block";
 
-  document.querySelector(".card").style.display =
-    "none";
-
-
-  // Show payment
-
-  document.getElementById("paymentSection").style.display =
-    "block";
-
-
-  // Scroll to payment
-
-  document.getElementById("paymentSection")
-    .scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
+  document.getElementById("paymentSection").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
 }
 
   // ================================
