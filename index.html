@@ -1145,31 +1145,65 @@ document
     calculateTotal();
 
   });
+// Image ကို Compress လုပ်ပေးမည့် Helper Function
+function compressImage(file, maxWidth = 800, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Quality ကို လျှော့ချပြီး Base64 ပြန်ထုတ်ပေးခြင်း
+        const compressedBase64 = canvas.toDataURL("image/jpeg", quality);
+        resolve(compressedBase64);
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+}
+
 async function submitBooking() {
   const customerName = document.getElementById("customerName").value.trim();
   const phone = document.getElementById("phone").value.trim();
   const guests = document.getElementById("guests").value;
   const specialRequest = document.getElementById("specialRequest").value.trim();
   
-  // Slip File ကို ရယူခြင်း
   const slipInput = document.getElementById("paymentSlip");
   const slipFile = slipInput.files[0];
 
   if (!customerName) { alert("Please enter your name."); return; }
   if (!phone) { alert("Please enter your phone number."); return; }
   
-  // Slip ပုံ တင်ထားခြင်း ရှိမရှိ စစ်ဆေးခြင်း
   if (!slipFile) {
     alert("Please upload your payment slip before confirming.");
     return;
   }
 
-  // Slip Image ကို Base64 သို့ ပြောင်းလဲခြင်း
-  const reader = new FileReader();
-  reader.readAsDataURL(slipFile);
-  
-  reader.onload = async function () {
-    const base64Image = reader.result;
+  // Loading Indicator သို့မဟုတ် Button ကို Disable လုပ်ပေးခြင်း
+  const submitBtn = document.querySelector(".payment-submit");
+  submitBtn.disabled = true;
+  submitBtn.innerText = "Processing...";
+
+  try {
+    // Slip ပုံကို Compress အရင်လုပ်မည်
+    const base64Image = await compressImage(slipFile, 800, 0.7);
 
     let profile = null;
     if (liff.isLoggedIn()) {
@@ -1192,34 +1226,32 @@ async function submitBooking() {
       lineUserId: profile?.userId || "",
       lineDisplayName: profile?.displayName || "",
       
-      // n8n workflow သို့ slip image ပေးပို့ခြင်း
       slipImage: base64Image, 
       status: "PAYMENT_SUBMITTED"
     };
 
-    try {
-      const response = await fetch(BOOKING_WEBHOOK, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+    const response = await fetch(BOOKING_WEBHOOK, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
 
-      if (!response.ok) {
-        alert("Payment confirmation failed.");
-        return;
-      }
-
-      alert("Payment slip uploaded successfully! We will confirm your booking soon.");
-      
-      // LIFF app ကို ပိတ်ပေးရန် (LINE မာ ပွင့်နေပါက)
-      if (liff.isInClient()) {
-        liff.closeWindow();
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error submitting payment. Please try again.");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+
+    alert("Payment slip uploaded successfully! We will confirm your booking soon.");
+    
+    if (liff.isInClient()) {
+      liff.closeWindow();
+    }
+  } catch (err) {
+    console.error("Submission Error:", err);
+    alert("Error submitting payment: " + err.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<span>CONFIRM PAYMENT</span><span class="arrow">→</span>';
+  }
 }
 
 init();
