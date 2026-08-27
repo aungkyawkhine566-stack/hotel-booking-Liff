@@ -1146,83 +1146,80 @@ document
 
   });
 async function submitBooking() {
+  const customerName = document.getElementById("customerName").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const guests = document.getElementById("guests").value;
+  const specialRequest = document.getElementById("specialRequest").value.trim();
+  
+  // Slip File ကို ရယူခြင်း
+  const slipInput = document.getElementById("paymentSlip");
+  const slipFile = slipInput.files[0];
 
-  const customerName =
-    document.getElementById("customerName").value.trim();
-
-  const phone =
-    document.getElementById("phone").value.trim();
-
-  const guests =
-    document.getElementById("guests").value;
-
-  const specialRequest =
-    document.getElementById("specialRequest").value.trim();
-
-  if (!customerName) {
-    alert("Please enter your name.");
+  if (!customerName) { alert("Please enter your name."); return; }
+  if (!phone) { alert("Please enter your phone number."); return; }
+  
+  // Slip ပုံ တင်ထားခြင်း ရှိမရှိ စစ်ဆေးခြင်း
+  if (!slipFile) {
+    alert("Please upload your payment slip before confirming.");
     return;
   }
 
-  if (!phone) {
-    alert("Please enter your phone number.");
-    return;
-  }
+  // Slip Image ကို Base64 သို့ ပြောင်းလဲခြင်း
+  const reader = new FileReader();
+  reader.readAsDataURL(slipFile);
+  
+  reader.onload = async function () {
+    const base64Image = reader.result;
 
-  let profile = null;
-
-  if (liff.isLoggedIn()) {
-    profile = await liff.getProfile();
-  }
-
-  const payload = {
-
-    roomId: bookingData.roomId,
-    roomNo: bookingData.roomNo,
-    roomType: bookingData.roomType,
-
-    checkIn: bookingData.checkIn,
-    checkOut: bookingData.checkOut,
-
-    price: bookingData.price,
-    nights: bookingData.nights,
-    total: bookingData.total,
-
-    customerName,
-    phone,
-    guests,
-    specialRequest,
-
-    lineUserId: profile?.userId || "",
-    lineDisplayName: profile?.displayName || "",
-
-    status: "PENDING_PAYMENT"
-  };
-
-  const response = await fetch(
-    BOOKING_WEBHOOK,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
+    let profile = null;
+    if (liff.isLoggedIn()) {
+      profile = await liff.getProfile();
     }
-  );
 
-  const result = await response.json();
+    const payload = {
+      roomId: bookingData.roomId,
+      roomNo: bookingData.roomNo,
+      roomType: bookingData.roomType,
+      checkIn: bookingData.checkIn,
+      checkOut: bookingData.checkOut,
+      price: bookingData.price,
+      nights: bookingData.nights,
+      total: bookingData.total,
+      customerName,
+      phone,
+      guests,
+      specialRequest,
+      lineUserId: profile?.userId || "",
+      lineDisplayName: profile?.displayName || "",
+      
+      // n8n workflow သို့ slip image ပေးပို့ခြင်း
+      slipImage: base64Image, 
+      status: "PAYMENT_SUBMITTED"
+    };
 
-  if (!response.ok) {
-    alert("Booking failed.");
-    return;
-  }
+    try {
+      const response = await fetch(BOOKING_WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
 
-  alert(
-    "Booking information received.\n\n" +
-    "Please continue to payment."
-  );
+      if (!response.ok) {
+        alert("Payment confirmation failed.");
+        return;
+      }
 
-  console.log(result);
+      alert("Payment slip uploaded successfully! We will confirm your booking soon.");
+      
+      // LIFF app ကို ပိတ်ပေးရန် (LINE မာ ပွင့်နေပါက)
+      if (liff.isInClient()) {
+        liff.closeWindow();
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error submitting payment. Please try again.");
+    }
+  };
 }
 
 init();
