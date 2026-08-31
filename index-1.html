@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hotel Booking</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+body{font-family:Arial,sans-serif;background:#f5f6f8;margin:0;color:#111}
+header{background:#fff;padding:16px;font-size:20px;font-weight:700;position:sticky;top:0}
+main{padding:16px;max-width:720px;margin:auto}
+.card{background:#fff;border-radius:16px;padding:18px;margin:12px 0;box-shadow:0 3px 12px #00000012}
+input,select,button{width:100%;box-sizing:border-box;padding:13px;border-radius:10px;border:1px solid #ddd;margin-top:8px;font-size:16px}
+button{border:0;background:#06c755;color:#fff;font-weight:700}
+button:disabled{opacity:.5}
+.room{border:1px solid #eee;border-radius:12px;padding:12px;margin:8px 0}
+.hidden{display:none}
+.status{padding:12px;border-radius:10px;background:#eef8f0;margin:10px 0}
+</style>
+</head>
+<body>
+<header>Hotel Booking</header>
+<main>
+<section id="searchCard" class="card">
+<h2>Book a Room</h2>
+<label>Check-in</label><input id="checkIn" type="date">
+<label>Check-out</label><input id="checkOut" type="date">
+<button onclick="searchRooms()">Search Available Rooms</button>
+<div id="rooms"></div>
+</section>
+
+<section id="bookingCard" class="card hidden">
+<h2>Booking Details</h2>
+<div id="selectedRoom" class="status"></div>
+<input id="customerName" placeholder="Customer Name">
+<input id="phone" placeholder="Phone Number">
+<button onclick="createBooking()">Continue to Payment</button>
+</section>
+
+<section id="paymentCard" class="card hidden">
+<h2>Payment</h2>
+<div id="paymentInfo" class="status"></div>
+<input id="slip" type="file" accept="image/png,image/jpeg">
+<button id="payBtn" onclick="confirmPayment()">Confirm Payment</button>
+<p>Upload your payment slip, then press Confirm Payment.</p>
+</section>
+
+<section id="receiptCard" class="card">
+<h2>My Receipt</h2>
+<button onclick="loadReceipt()">Show Confirmed Booking</button>
+<div id="receipt"></div>
+</section>
+
+<section class="card">
+<h2>Location</h2>
+<button onclick="openLocation()">Open Google Maps</button>
+</section>
+</main>
+
+<script>
+const LIFF_ID="2011160557-ZKTWIJi0";
+const API_BASE="https://sage-loon.pikapod.net/webhook";
+const MAP_URL="https://maps.app.goo.gl/ZPfU2Y6sCJLxagj86?g_st=al";
+let profile=null, selected=null, bookingId=null;
+
+async function init(){
+  try{
+    await liff.init({liffId:LIFF_ID});
+    if(liff.isLoggedIn()) profile=await liff.getProfile();
+  }catch(e){console.error(e)}
+  const p=new URLSearchParams(location.search);
+  if(p.get("roomNo")){
+    selected={roomNo:p.get("roomNo"),roomType:p.get("roomType")||"",price:p.get("price")||""};
+    document.getElementById("selectedRoom").textContent=`Room ${selected.roomNo} • ${selected.roomType} • ${selected.price} MMK/night`;
+    document.getElementById("bookingCard").classList.remove("hidden");
+  }
+}
+async function searchRooms(){
+  const ci=document.getElementById("checkIn").value, co=document.getElementById("checkOut").value;
+  if(!ci||!co){alert("Please select check-in and check-out.");return}
+  const r=await fetch(API_BASE+"/cpark-rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({checkIn:ci,checkOut:co})});
+  const d=await r.json(), box=document.getElementById("rooms"); box.innerHTML="";
+  if(!d.rooms?.length){box.innerHTML="<p>No available rooms.</p>";return}
+  d.rooms.forEach(x=>{
+    const el=document.createElement("div");el.className="room";
+    el.innerHTML=`<b>Room ${x.roomNo}</b><br>${x.roomType}<br>${x.price} MMK/night`;
+    const b=document.createElement("button");b.textContent="BOOK THIS ROOM";
+    b.onclick=()=>{selected=x;document.getElementById("selectedRoom").textContent=`Room ${x.roomNo} • ${x.roomType} • ${x.price} MMK/night`;document.getElementById("bookingCard").classList.remove("hidden");window.scrollTo(0,document.body.scrollHeight)};
+    el.appendChild(b);box.appendChild(el);
+  });
+}
+async function createBooking(){
+  if(!selected){alert("Select a room.");return}
+  const ci=document.getElementById("checkIn").value,co=document.getElementById("checkOut").value;
+  const name=document.getElementById("customerName").value.trim(),phone=document.getElementById("phone").value.trim();
+  if(!name||!phone||!ci||!co){alert("Please fill all fields.");return}
+  const r=await fetch(API_BASE+"/cpark-book",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    roomNo:selected.roomNo,roomType:selected.roomType,price:selected.price,amount:selected.price,
+    customerName:name,phone,lineUserId:profile?.userId||"",checkIn:ci,checkOut:co
+  })});
+  const d=await r.json();
+  if(!d.success){alert(d.message||d.error||"Booking failed.");return}
+  bookingId=d.bookingId;
+  document.getElementById("paymentInfo").textContent=`Booking ${bookingId} • ${selected.price} MMK`;
+  document.getElementById("paymentCard").classList.remove("hidden");
+  window.scrollTo(0,document.body.scrollHeight);
+}
+async function confirmPayment(){
+  const file=document.getElementById("slip").files[0];
+  if(!file||!bookingId){alert("Choose a payment slip first.");return}
+  if(file.size>5*1024*1024){alert("Slip must be 5MB or less.");return}
+  const btn=document.getElementById("payBtn");btn.disabled=true;btn.textContent="Processing...";
+  const data=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(fr.result);fr.onerror=reject;fr.readAsDataURL(file)});
+  try{
+    const r=await fetch(API_BASE+"/cpark-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+      bookingId,lineUserId:profile?.userId||"",slipImage:data,customerName:document.getElementById("customerName").value,phone:document.getElementById("phone").value
+    })});
+    const d=await r.json();
+    if(!d.success){alert(d.error||"Payment failed.");return}
+    alert("Payment confirmed successfully!");
+    await loadReceipt();
+    document.getElementById("paymentCard").classList.add("hidden");
+  }catch(e){alert("Network error: "+e.message)}
+  finally{btn.disabled=false;btn.textContent="Confirm Payment"}
+}
+async function loadReceipt(){
+  const uid=profile?.userId||"";
+  if(!uid){alert("Open this page from LINE so your LINE account can be identified.");return}
+  const r=await fetch(API_BASE+"/cpark-receipt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({lineUserId:uid})});
+  const d=await r.json(),box=document.getElementById("receipt");box.innerHTML="";
+  if(!d.bookings?.length){box.innerHTML="<p>No confirmed booking found.</p>";return}
+  d.bookings.slice().reverse().forEach(x=>{
+    const el=document.createElement("div");el.className="room";
+    el.innerHTML=`<b>✅ ${x["Booking ID"]||""}</b><br>Room ${x["Room No"]||""} • ${x["Room Type"]||""}<br>Check-in: ${x["Check-in"]||""}<br>Check-out: ${x["Check-out"]||""}<br>Amount: ${x.Amount||""} MMK<br><b>${x["Payment Status"]||"CONFIRMED"}</b>`;
+    box.appendChild(el);
+  });
+}
+function openLocation(){window.open(MAP_URL,"_blank")}
+init();
+</script>
+</body>
+</html>
