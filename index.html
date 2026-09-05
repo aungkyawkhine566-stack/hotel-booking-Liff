@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>C PARK Admin Calendar</title><link rel="stylesheet" href="./admin.css"></head>
+<body>
+<header><b>C PARK ADMIN</b><span>Booking Calendar</span></header>
+<div class="layout">
+<aside><b>Dashboard</b><a class="active">Calendar</a><a>Bookings</a><a>Rooms</a><a>Customers</a><a>Reports</a><a>Settings</a></aside>
+<main><div class="toolbar"><button onclick="changeMonth(-1)">‹</button><h2 id="monthTitle"></h2><button onclick="changeMonth(1)">›</button><button onclick="loadBookings()">Refresh</button></div>
+<div id="calendar" class="calendar"></div><div id="detail" class="detail hidden"></div></main>
+</div>
+<script src="./config.js"></script><script src="./admin.js"></script>
+</body></html>
