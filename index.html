@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C Park Hotel Booking</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="line-dot">LINE</span><div><b>C PARK</b><small>HOTEL BOOKING</small></div></div>
+    <button id="closeBtn" class="icon-btn" onclick="closeLiff()">×</button>
+  </header>
+
+  <main class="container">
+    <section id="menuPage" class="page active">
+      <div class="welcome card">
+        <h2>Hello! 👋</h2>
+        <p>Welcome to our hotel. What would you like to do today?</p>
+      </div>
+      <button class="menu-card" onclick="showPage('searchPage')">
+        <span class="menu-icon">🛏️</span>
+        <span><b>Search Room</b><small>Find available rooms</small></span>
+        <span>›</span>
+      </button>
+      <button class="menu-card" onclick="showPage('bookingsPage'); loadBookings()">
+        <span class="menu-icon">📅</span>
+        <span><b>My Bookings</b><small>View my bookings</small></span>
+        <span>›</span>
+      </button>
+      <button class="menu-card" onclick="showPage('profilePage'); loadProfile()">
+        <span class="menu-icon">👤</span>
+        <span><b>Profile</b><small>View my profile</small></span>
+        <span>›</span>
+      </button>
+    </section>
+
+    <section id="searchPage" class="page">
+      <button class="back" onclick="showPage('menuPage')">‹ Back</button>
+      <h2>Select Room & Date</h2>
+      <div class="card">
+        <label>Check-in</label>
+        <input id="checkin" type="date">
+        <label>Check-out</label>
+        <input id="checkout" type="date">
+        <label>Guests</label>
+        <select id="guests"><option>1</option><option selected>2</option><option>3</option><option>4</option></select>
+        <button class="primary" onclick="searchRooms()">Search Available Rooms</button>
+      </div>
+      <div id="rooms" class="room-list"></div>
+    </section>
+
+    <section id="infoPage" class="page">
+      <button class="back" onclick="showPage('searchPage')">‹ Back</button>
+      <h2>Booking Information</h2>
+      <div class="card">
+        <div id="selectedRoomBox"></div>
+        <label>Full Name</label>
+        <input id="customerName" type="text" placeholder="Enter your name">
+        <label>Phone Number</label>
+        <input id="phone" type="tel" placeholder="09xxxxxxxxx">
+        <label>Note (Optional)</label>
+        <textarea id="note" rows="3" placeholder="Special request..."></textarea>
+        <button class="primary" onclick="showConfirm()">Next</button>
+      </div>
+    </section>
+
+    <section id="confirmPage" class="page">
+      <button class="back" onclick="showPage('infoPage')">‹ Back</button>
+      <h2>Confirm Booking</h2>
+      <div id="confirmBox" class="card"></div>
+      <button class="primary" onclick="createBooking()">BOOK NOW</button>
+    </section>
+
+    <section id="successPage" class="page">
+      <div class="success card">
+        <div class="check">✓</div>
+        <h2>Booking Completed!</h2>
+        <p>Your booking has been successfully sent.</p>
+        <p>You can see your booking in <b>My Bookings</b>.</p>
+        <div id="bookingIdResult"></div>
+        <button class="primary" onclick="showPage('bookingsPage'); loadBookings()">View My Bookings</button>
+        <button class="secondary" onclick="showPage('menuPage')">Back to Menu</button>
+      </div>
+    </section>
+
+    <section id="bookingsPage" class="page">
+      <button class="back" onclick="showPage('menuPage')">‹ Back</button>
+      <h2>My Bookings</h2>
+      <div id="myBookings"></div>
+    </section>
+
+    <section id="profilePage" class="page">
+      <button class="back" onclick="showPage('menuPage')">‹ Back</button>
+      <h2>Profile</h2>
+      <div id="profile" class="card"></div>
+    </section>
+  </main>
+
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
