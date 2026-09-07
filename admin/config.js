@@ -1,1 +1,1 @@
-const ADMIN_CONFIG={BOOKINGS_WEBHOOK:"https://YOUR-N8N-DOMAIN/webhook/cpark-admin-bookings"};
+const ADMIN_CONFIG={BOOKINGS_WEBHOOK:"https://sage-loon.pikapod.net/webhook/cpark-admin-bookings"};
