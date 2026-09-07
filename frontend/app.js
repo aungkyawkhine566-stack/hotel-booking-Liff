@@ -87,27 +87,38 @@ function showConfirm(){
 }
 
 async function createBooking(){
-  if(!selectedRoom)return;
-  const payload={
-    user_id:getUserId(),
-    customer_name:$("customerName").value.trim(),
-    phone:$("phone").value.trim(),
-    room_id:selectedRoom.room_id||selectedRoom.roomId,
-    room_name:selectedRoom.room_name||selectedRoom.roomName,
-    check_in:$("checkin").value,
-    check_out:$("checkout").value,
-    guests:Number($("guests").value),
-    note:$("note").value.trim()
+  if(!selectedRoom) return;
+  
+  // room_id field မပျောက်သွားစေရန် Safe fallback ပြုလုပ်ထားခြင်း
+  const roomIdValue = selectedRoom.room_id || selectedRoom.roomId || selectedRoom.id || selectedRoom.room_name;
+  
+  const payload = {
+    user_id: getUserId(),
+    customer_name: $("customerName").value.trim(),
+    phone: $("phone").value.trim(),
+    room_id: String(roomIdValue),
+    room_name: selectedRoom.room_name || selectedRoom.roomName || "Standard Room",
+    check_in: $("checkin").value,
+    check_out: $("checkout").value,
+    guests: Number($("guests").value),
+    note: $("note").value.trim()
   };
-  try{
-    const r=await fetch(CONFIG.BOOKING_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-    const data=await r.json();
-    if(!data.success){alert(data.message||"Booking failed.");return;}
-    $("bookingIdResult").innerHTML=`<p><b>Booking ID: ${escapeHtml(data.booking_id||"")}</b></p><p class="muted">Please wait for confirmation.</p>`;
+  
+  try {
+    const r = await fetch(CONFIG.BOOKING_WEBHOOK, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await r.json();
+    if(!data.success){ alert(data.message || "Booking failed."); return; }
+    
+    $("bookingIdResult").innerHTML = `<p><b>Booking ID: ${escapeHtml(data.booking_id || "")}</b></p><p class="muted">Please wait for confirmation.</p>`;
     showPage("successPage");
-  }catch(e){alert("Booking failed. Please check n8n.");}
+  } catch(e) {
+    alert("Booking failed. Please check n8n.");
+  }
 }
-
 async function loadBookings(){
   $("myBookings").innerHTML="<div class='card'>Loading...</div>";
   try{
