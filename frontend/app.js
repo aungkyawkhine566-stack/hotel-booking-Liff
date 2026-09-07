@@ -6,7 +6,7 @@ function $(id){ return document.getElementById(id); }
 
 async function init(){
   try{
-    if(CONFIG.LIFF_ID && CONFIG.LIFF_ID !== "YOUR_LIFF_ID"){
+    if(CONFIG.LIFF_ID && CONFIG.LIFF_ID !== "2011476453-A8K9qAG9"){
       await liff.init({liffId: CONFIG.LIFF_ID});
       if(liff.isLoggedIn()){
         profile = await liff.getProfile();
