@@ -89,21 +89,21 @@ function showConfirm(){
 async function createBooking(){
   if(!selectedRoom) return;
   
-  // room_id field မပျောက်သွားစေရန် Safe fallback ပြုလုပ်ထားခြင်း
-  const roomIdValue = selectedRoom.room_id || selectedRoom.roomId || selectedRoom.id || selectedRoom.room_name;
-  
+  // room_id မပါလာပါက room_name သို့မဟုတ် "ROOM-01" ကို အစားထိုးယူရန်
+  const validRoomId = selectedRoom.room_id || selectedRoom.roomId || selectedRoom.id || selectedRoom.room_name || "ROOM-01";
+
   const payload = {
     user_id: getUserId(),
     customer_name: $("customerName").value.trim(),
     phone: $("phone").value.trim(),
-    room_id: String(roomIdValue),
+    room_id: String(validRoomId), // Empty String မဖြစ်အောင် ကာကွယ်ပေးထားပါသည်
     room_name: selectedRoom.room_name || selectedRoom.roomName || "Standard Room",
     check_in: $("checkin").value,
     check_out: $("checkout").value,
     guests: Number($("guests").value),
     note: $("note").value.trim()
   };
-  
+
   try {
     const r = await fetch(CONFIG.BOOKING_WEBHOOK, {
       method: "POST",
