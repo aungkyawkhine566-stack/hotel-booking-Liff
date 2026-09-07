@@ -6,7 +6,7 @@ function $(id){ return document.getElementById(id); }
 
 async function init(){
   try{
-    if(CONFIG.LIFF_ID && CONFIG.LIFF_ID !== "2011476453-A8K9qAG9"){
+    if(CONFIG.LIFF_ID){
       await liff.init({liffId: CONFIG.LIFF_ID});
       if(liff.isLoggedIn()){
         profile = await liff.getProfile();
@@ -15,7 +15,9 @@ async function init(){
         return;
       }
     }
-  }catch(e){ console.error(e); }
+  }catch(e){ 
+    console.error("LIFF Init Error:", e); 
+  }
   setDateLimits();
 }
 init();
