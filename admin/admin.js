@@ -94,16 +94,16 @@ function renderBookingList(bookings) {
   if (!listEl) return;
 
   if (!bookings.length) {
-    listEl.innerHTML = "No bookings found.";
+    listEl.innerHTML = "<p style='color: var(--text-muted);'>No bookings found.</p>";
     return;
   }
 
   listEl.innerHTML = `
-    <table border="1" width="100%" style="border-collapse:collapse; text-align:left;">
+    <table class="admin-table">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Name</th>
+          <th>Booking ID</th>
+          <th>Customer</th>
           <th>Phone</th>
           <th>Room</th>
           <th>Dates</th>
@@ -115,12 +115,16 @@ function renderBookingList(bookings) {
           .map(
             (b) => `
           <tr>
-            <td>${escapeHtml(b.booking_id || b.id || "-")}</td>
+            <td><b>${escapeHtml(b.booking_id || b.id || "-")}</b></td>
             <td>${escapeHtml(b.customer_name || "-")}</td>
             <td>${escapeHtml(b.phone || "-")}</td>
             <td>${escapeHtml(b.room_name || b.room_id || "-")}</td>
             <td>${escapeHtml(b.check_in || "")} → ${escapeHtml(b.check_out || "")}</td>
-            <td>${escapeHtml(b.status || "Pending")}</td>
+            <td>
+              <span class="status-pill ${b.status === "Confirmed" ? "confirmed" : "pending"}">
+                ${escapeHtml(b.status || "Pending")}
+              </span>
+            </td>
           </tr>`
           )
           .join("")}
