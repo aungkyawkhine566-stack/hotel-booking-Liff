@@ -34,29 +34,87 @@ function setDateLimits(){
 }
 
 function showPage(id){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  $(id).classList.add("active");
-  window.scrollTo(0,0);
+  try {
+    document.querySelectorAll(".page").forEach(p => {
+      p.classList.remove("active");
+    });
+
+    const page = $(id);
+
+    if (!page) {
+      console.error("Page not found:", id);
+      alert("Page not found: " + id);
+      return;
+    }
+
+    page.classList.add("active");
+    window.scrollTo(0, 0);
+
+  } catch (error) {
+    console.error("SHOW PAGE ERROR:", error);
+  }
 }
 
 function closeLiff(){ if(window.liff && liff.isInClient()) liff.closeWindow(); }
 
 function getUserId(){ return profile?.userId || "WEB_TEST_USER"; }
 
-async function searchRooms(){
-  const checkin=$("checkin").value, checkout=$("checkout").value, guests=Number($("guests").value);
-  if(!checkin || !checkout || checkout<=checkin){ alert("Please select valid check-in and check-out dates."); return; }
+function selectRoom(i){
+  try {
+    selectedRoom = rooms[i];
 
-  $("rooms").innerHTML="<div class='card'>Searching...</div>";
-  try{
-    const r=await fetch(CONFIG.SEARCH_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({checkin,checkout,guests})});
-    const data=await r.json();
-    rooms=data.rooms || data || [];
-    if(!Array.isArray(rooms)) rooms=[];
-    renderRooms();
-  }catch(e){
-    $("rooms").innerHTML="<div class='error'>Unable to search rooms. Check the n8n webhook URL.</div>";
+    if (!selectedRoom) {
+      alert("Room information not found.");
+      return;
+    }
+
+    const roomName =
+      selectedRoom.room_name ||
+      selectedRoom.roomName ||
+      "Room";
+
+    const roomType =
+      selectedRoom.room_type ||
+      selectedRoom.roomType ||
+      "";
+
+    const price =
+      Number(
+        selectedRoom.price_per_night ||
+        selectedRoom.price ||
+        0
+      ).toLocaleString();
+
+    const checkin = $("checkin").value;
+    const checkout = $("checkout").value;
+
+    $("selectedRoomBox").innerHTML = `
+      <div class="booking-item">
+
+        <b>${escapeHtml(roomName)}</b>
+
+        ${roomType ? `
+          <div class="muted">
+            Room Type: ${escapeHtml(roomType)}
+          </div>
+        ` : ""}
+
+        <div class="price">
+          ${price} MMK / night
+        </div>
+
+        <div class="muted">
+          ${escapeHtml(checkin)} → ${escapeHtml(checkout)}
+        </div>
+
+      </div>
+    `;
+
+    showPage("infoPage");
+
+  } catch (error) {
+    console.error("SELECT ROOM ERROR:", error);
+    alert("Unable to select this room. Please try again.");
   }
 }
 
