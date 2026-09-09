@@ -72,40 +72,95 @@ function renderRooms(){
 
 function selectRoom(i){
   selectedRoom=rooms[i];
-  $("selectedRoomBox").innerHTML=`<div class="booking-item"><b>${escapeHtml(selectedRoom.room_name||selectedRoom.roomName)}</b><div class="price">${Number(selectedRoom.price_per_night||selectedRoom.price||0).toLocaleString()} MMK / night</div><div class="muted">${$("checkin").value} → ${$("checkout").value}</div></div>`;
-  showPage("infoPage");
-}
+ $("selectedRoomBox").innerHTML=`
+  <div class="booking-item">
+    <b>${escapeHtml(selectedRoom.room_name || selectedRoom.roomName || "Room")}</b>
 
+    <div class="muted">
+      Room Type:
+      ${escapeHtml(selectedRoom.room_type || selectedRoom.roomType || "-")}
+    </div>
+
+    <div class="price">
+      ${Number(selectedRoom.price_per_night || selectedRoom.price || 0).toLocaleString()} MMK / night
+    </div>
+
+    <div class="muted">
+      ${$("checkin").value} → ${$("checkout").value}
+    </div>
+  </div>
+`;
+}
 function showConfirm(){
-  if(!$("customerName").value.trim() || !$("phone").value.trim()){alert("Please enter your name and phone number.");return;}
+  if(
+    !$("customerName").value.trim() ||
+    !$("phone").value.trim()
+  ){
+    alert("Please enter your name and phone number.");
+    return;
+  }
+
   $("confirmBox").innerHTML=`
-    <b>${escapeHtml(selectedRoom.room_name||selectedRoom.roomName)}</b>
-    <p><b>Date:</b> ${$("checkin").value} → ${$("checkout").value}</p>
-    <p><b>Guests:</b> ${$("guests").value}</p>
-    <p><b>Name:</b> ${escapeHtml($("customerName").value)}</p>
-    <p><b>Phone:</b> ${escapeHtml($("phone").value)}</p>
-    <p><b>Note:</b> ${escapeHtml($("note").value||"-")}</p>`;
+    <b>${escapeHtml(selectedRoom.room_name || selectedRoom.roomName || "Room")}</b>
+
+    <p>
+      <b>Room Type:</b>
+      ${escapeHtml(selectedRoom.room_type || selectedRoom.roomType || "-")}
+    </p>
+
+    <p>
+      <b>Date:</b>
+      ${$("checkin").value} → ${$("checkout").value}
+    </p>
+
+    <p>
+      <b>Guests:</b>
+      ${$("guests").value}
+    </p>
+
+    <p>
+      <b>Name:</b>
+      ${escapeHtml($("customerName").value)}
+    </p>
+
+    <p>
+      <b>Phone:</b>
+      ${escapeHtml($("phone").value)}
+    </p>
+
+    <p>
+      <b>Note:</b>
+      ${escapeHtml($("note").value || "-")}
+    </p>
+  `;
+
   showPage("confirmPage");
 }
-
 async function createBooking(){
   if(!selectedRoom) return;
   
   // room_id မပါလာပါက room_name သို့မဟုတ် "ROOM-01" ကို အစားထိုးယူရန်
   const validRoomId = selectedRoom.room_id || selectedRoom.roomId || selectedRoom.id || selectedRoom.room_name || "ROOM-01";
 
-  const payload = {
-    user_id: getUserId(),
-    customer_name: $("customerName").value.trim(),
-    phone: $("phone").value.trim(),
-    room_id: String(validRoomId), // Empty String မဖြစ်အောင် ကာကွယ်ပေးထားပါသည်
-    room_name: selectedRoom.room_name || selectedRoom.roomName || "Standard Room",
-    check_in: $("checkin").value,
-    check_out: $("checkout").value,
-    guests: Number($("guests").value),
-    note: $("note").value.trim()
-  };
+ const payload = {
+  user_id: getUserId(),
+  customer_name: $("customerName").value.trim(),
+  phone: $("phone").value.trim(),
 
+  room_id: String(validRoomId),
+
+  // Room Name = Room 101
+  room_name: selectedRoom.room_name || selectedRoom.roomName || "",
+
+  // Room Type = Double Room / Twin Room / Triple Room
+  room_type: selectedRoom.room_type || selectedRoom.roomType || "",
+
+  check_in: $("checkin").value,
+  check_out: $("checkout").value,
+  guests: Number($("guests").value),
+  note: $("note").value.trim()
+};
+  
   try {
     const r = await fetch(CONFIG.BOOKING_WEBHOOK, {
       method: "POST",
@@ -127,8 +182,32 @@ async function loadBookings(){
     const r=await fetch(CONFIG.MY_BOOKINGS_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:getUserId()})});
     const data=await r.json(); const list=data.bookings||[];
     $("myBookings").innerHTML=list.length?list.map(b=>`
-      <div class="booking-item"><b>${escapeHtml(b.room_name||"Room")}</b>
-      <div>${escapeHtml(b.check_in)} → ${escapeHtml(b.check_out)}</div>
+      <div class="booking-item">
+  <b>${escapeHtml(b.room_name || "Room")}</b>
+
+  <div class="muted">
+    Room Type:
+    ${escapeHtml(b.room_type || "-")}
+  </div>
+
+  <div>
+    ${escapeHtml(b.check_in)} → ${escapeHtml(b.check_out)}
+  </div>
+
+  <div>
+    Guests: ${escapeHtml(String(b.guests || ""))}
+  </div>
+
+  <p>
+    <span class="status">
+      ${escapeHtml(b.status || "Pending")}
+    </span>
+  </p>
+
+  <div class="muted">
+    Booking ID: ${escapeHtml(b.booking_id || "")}
+  </div>
+</div>
       <div>Guests: ${escapeHtml(String(b.guests||""))}</div>
       <p><span class="status">${escapeHtml(b.status||"Pending")}</span></p>
       <div class="muted">Booking ID: ${escapeHtml(b.booking_id||"")}</div></div>`).join(""):"<div class='card'>No bookings found.</div>";
