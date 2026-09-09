@@ -3,29 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hotel Admin Dashboard</title>
-  <link rel="stylesheet" href="./admin.css">
+  <title>C Park Hotel - Admin Dashboard</title>
   
-  <!-- FullCalendar CDN Scripts -->
+  <!-- Modern Font & Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- FullCalendar CDN -->
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  
+  <link rel="stylesheet" href="./admin.css">
 </head>
 <body>
-  <header class="topbar">
-    <h1>C Park Hotel - Admin Panel</h1>
-    <button onclick="fetchBookings()">🔄 Refresh</button>
-  </header>
+  <div class="admin-wrapper">
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="brand">
+        <i class="fa-solid fa-hotel brand-icon"></i>
+        <div>
+          <h1>C PARK HOTEL</h1>
+          <span class="subtitle">Admin Management Portal</span>
+        </div>
+      </div>
+      <div class="status-badge">
+        <span class="live-dot"></span> Auto-Sync
+      </div>
+    </header>
 
-  <main class="admin-container">
-    <section class="card">
-      <h2>Booking Calendar</h2>
-      <div id="calendar"></div>
-    </section>
+    <!-- Main Content Area -->
+    <main class="dashboard-content">
+      <!-- Calendar Card -->
+      <section class="dash-card">
+        <div class="card-header">
+          <h2><i class="fa-regular fa-calendar-days"></i> Booking Calendar</h2>
+        </div>
+        <div id="calendar"></div>
+      </section>
 
-    <section class="card" style="margin-top: 20px;">
-      <h2>All Bookings</h2>
-      <div id="bookingList">Loading...</div>
-    </section>
-  </main>
+      <!-- Booking List Card -->
+      <section class="dash-card">
+        <div class="card-header">
+          <h2><i class="fa-solid fa-list-check"></i> Recent Bookings</h2>
+        </div>
+        <div class="table-responsive">
+          <div id="bookingList">Loading bookings...</div>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script src="./config.js"></script>
   <script src="./admin.js"></script>
