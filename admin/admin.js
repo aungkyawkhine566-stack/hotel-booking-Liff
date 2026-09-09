@@ -1,16 +1,117 @@
-let bookings=[], current=new Date();
-function api(){return (window.ADMIN_CONFIG&&ADMIN_CONFIG.BOOKINGS_WEBHOOK)||"https://YOUR-N8N-DOMAIN/webhook/cpark-admin-bookings";}
-async function loadBookings(){try{const r=await fetch(api());const d=await r.json();bookings=d.bookings||d||[];render();}catch(e){document.getElementById("calendar").innerHTML="<div style='padding:20px'>Cannot load bookings. Configure admin webhook.</div>";}}
-function changeMonth(n){current.setMonth(current.getMonth()+n);render();}
-function render(){
- const y=current.getFullYear(),m=current.getMonth(); document.getElementById("monthTitle").textContent=current.toLocaleString("en",{month:"long",year:"numeric"});
- const first=new Date(y,m,1), start=(first.getDay()+6)%7, days=new Date(y,m+1,0).getDate();
- let h=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(x=>`<div class="head">${x}</div>`).join("");
- for(let i=0;i<start;i++)h+="<div class='day'></div>";
- for(let d=1;d<=days;d++){let ds=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;let ev=bookings.filter(b=>b.check_in<=ds&&ds<b.check_out);
- h+=`<div class="day"><div class="num">${d}</div>${ev.map((b,i)=>`<div class="event" onclick='showDetail(${JSON.stringify(b).replace(/'/g,"&#39;")})'>${b.room_name||"Room"}<br>${b.customer_name||""}</div>`).join("")}</div>`;}
- document.getElementById("calendar").innerHTML=h;
+let calendar = null;
+
+document.addEventListener("DOMContentLoaded", function () {
+  initCalendar();
+  fetchBookings();
+});
+
+function initCalendar() {
+  const calendarEl = document.getElementById("calendar");
+  if (!calendarEl) return;
+
+  calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: "dayGridMonth",
+    headerToolbar: {
+      left: "prev,next today",
+      center: "title",
+      right: "dayGridMonth,timeGridWeek",
+    },
+    events: [],
+    eventClick: function (info) {
+      alert(
+        `Booking Details:\nCustomer: ${info.event.title}\nRoom: ${info.event.extendedProps.room}\nPhone: ${info.event.extendedProps.phone}`
+      );
+    },
+  });
+
+  calendar.render();
 }
-function showDetail(b){const d=document.getElementById("detail");d.classList.remove("hidden");d.innerHTML=`<h3>${esc(b.room_name)}</h3><p><b>Booking ID:</b> ${esc(b.booking_id)}</p><p><b>Customer:</b> ${esc(b.customer_name)}</p><p><b>Phone:</b> ${esc(b.phone)}</p><p><b>Date:</b> ${esc(b.check_in)} → ${esc(b.check_out)}</p><p><b>Guests:</b> ${esc(b.guests)}</p><p><b>Status:</b> ${esc(b.status)}</p><p><b>Note:</b> ${esc(b.note||"-")}</p><button onclick="this.parentElement.classList.add('hidden')">Close</button>`;}
-function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
-render();loadBookings();
+
+async function fetchBookings() {
+  const listEl = document.getElementById("bookingList");
+  if (listEl) listEl.innerHTML = "Loading bookings...";
+
+  try {
+    const response = await fetch(ADMIN_CONFIG.BOOKINGS_WEBHOOK, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await response.json();
+    const bookings = Array.isArray(data) ? data : data.bookings || [];
+
+    // Calendar အတွက် Event Format ပြောင်းလဲခြင်း
+    const events = bookings.map((b) => ({
+      id: b.booking_id || b.id,
+      title: `${b.customer_name || "Guest"} (${b.room_name || b.room_id || "Room"})`,
+      start: b.check_in || b.checkin,
+      end: b.check_out || b.checkout, // Check-out date
+      color: b.status === "Confirmed" ? "#28a745" : "#ffc107",
+      extendedProps: {
+        phone: b.phone || "-",
+        room: b.room_name || b.room_id || "-",
+      },
+    }));
+
+    // Calendar ထဲသို့ Events များ ထည့်သွင်းခြင်း
+    if (calendar) {
+      calendar.removeAllEvents();
+      calendar.addEventSource(events);
+    }
+
+    // Table / List အဖြစ် အောက်တွင် ပြသခြင်း
+    renderBookingList(bookings);
+  } catch (error) {
+    console.error("Error fetching admin bookings:", error);
+    if (listEl) listEl.innerHTML = "<div class='error'>Failed to load bookings from server.</div>";
+  }
+}
+
+function renderBookingList(bookings) {
+  const listEl = document.getElementById("bookingList");
+  if (!listEl) return;
+
+  if (!bookings.length) {
+    listEl.innerHTML = "No bookings found.";
+    return;
+  }
+
+  listEl.innerHTML = `
+    <table border="1" width="100%" style="border-collapse:collapse; text-align:left;">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Room</th>
+          <th>Dates</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${bookings
+          .map(
+            (b) => `
+          <tr>
+            <td>${escapeHtml(b.booking_id || b.id || "-")}</td>
+            <td>${escapeHtml(b.customer_name || "-")}</td>
+            <td>${escapeHtml(b.phone || "-")}</td>
+            <td>${escapeHtml(b.room_name || b.room_id || "-")}</td>
+            <td>${escapeHtml(b.check_in || "")} → ${escapeHtml(b.check_out || "")}</td>
+            <td>${escapeHtml(b.status || "Pending")}</td>
+          </tr>`
+          )
+          .join("")}
+      </tbody>
+    </table>`;
+}
+
+function escapeHtml(v) {
+  return String(v ?? "").replace(/[&<>"']/g, (m) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  }[m]));
+}
