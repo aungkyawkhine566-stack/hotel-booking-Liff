@@ -40,18 +40,28 @@ async function fetchBookings() {
     const data = await response.json();
     const bookings = Array.isArray(data) ? data : data.bookings || [];
 
-    // Calendar အတွက် Event Format ပြောင်းလဲခြင်း
-    const events = bookings.map((b) => ({
-      id: b.booking_id || b.id,
-      title: `${b.customer_name || "Guest"} (${b.room_name || b.room_id || "Room"})`,
-      start: b.check_in || b.checkin,
-      end: b.check_out || b.checkout, // Check-out date
-      color: b.status === "Confirmed" ? "#28a745" : "#ffc107",
-      extendedProps: {
-        phone: b.phone || "-",
-        room: b.room_name || b.room_id || "-",
-      },
-    }));
+   // Calendar အတွက် Event Format ပြောင်းလဲခြင်း
+    const events = bookings.map((b) => {
+      // FullCalendar end date exclusive ဖြစ်၍ +1 day ပေါင်းပေးခြင်း
+      let endDate = b.check_out || b.checkout;
+      if (endDate) {
+        const d = new Date(endDate);
+        d.setDate(d.getDate() + 1);
+        endDate = d.toISOString().split("T")[0];
+      }
+
+      return {
+        id: b.booking_id || b.id,
+        title: `${b.customer_name || "Guest"} (${b.room_name || b.room_id || "Room"})`,
+        start: b.check_in || b.checkin,
+        end: endDate,
+        color: b.status === "Confirmed" ? "#28a745" : "#ffc107",
+        extendedProps: {
+          phone: b.phone || "-",
+          room: b.room_name || b.room_id || "-",
+        },
+      };
+    });
 
     // Calendar ထဲသို့ Events များ ထည့်သွင်းခြင်း
     if (calendar) {
