@@ -40,41 +40,53 @@ async function fetchBookings() {
     const data = await response.json();
     const bookings = Array.isArray(data) ? data : data.bookings || [];
 
-   // Calendar အတွက် Event Format ပြောင်းလဲခြင်း
-    const events = bookings.map((b) => {
-      // FullCalendar end date exclusive ဖြစ်၍ +1 day ပေါင်းပေးခြင်း
-      let endDate = b.check_out || b.checkout;
-      if (endDate) {
-        const d = new Date(endDate);
-        d.setDate(d.getDate() + 1);
-        endDate = d.toISOString().split("T")[0];
-      }
+    // Calendar အတွက် Event Format ပြောင်းလဲခြင်း
+    const events = bookings
+      .map((b) => {
+        const startDate = parseToISODate(b.check_in || b.checkin);
+        let endDate = parseToISODate(b.check_out || b.checkout);
 
-      return {
-        id: b.booking_id || b.id,
-        title: `${b.customer_name || "Guest"} (${b.room_name || b.room_id || "Room"})`,
-        start: b.check_in || b.checkin,
-        end: endDate,
-        color: b.status === "Confirmed" ? "#28a745" : "#ffc107",
-        extendedProps: {
-          phone: b.phone || "-",
-          room: b.room_name || b.room_id || "-",
-        },
-      };
-    });
+        if (!startDate) return null; // Check-in မရှိပါက ပစ်ပယ်မည်
 
-    // Calendar ထဲသို့ Events များ ထည့်သွင်းခြင်း
+        // FullCalendar end date exclusive ဖြစ်၍ +1 day ပေါင်းပေးခြင်း
+        if (endDate) {
+          const d = new Date(endDate);
+          d.setDate(d.getDate() + 1);
+          endDate = d.toISOString().split("T")[0];
+        }
+
+        return {
+          id: b.booking_id || b.id,
+          title: `${b.customer_name || "Guest"} (${b.room_name || b.room_id || "Room"})`,
+          start: startDate,
+          end: endDate || startDate,
+          color: b.status === "Confirmed" ? "#28a745" : "#ffc107",
+          extendedProps: {
+            phone: b.phone || "-",
+            room: b.room_name || b.room_id || "-",
+          },
+        };
+      })
+      .filter(Boolean); // null ဖြစ်နေသော event များကို ဖယ်ထုတ်မည်
+
     if (calendar) {
       calendar.removeAllEvents();
       calendar.addEventSource(events);
     }
 
-    // Table / List အဖြစ် အောက်တွင် ပြသခြင်း
     renderBookingList(bookings);
   } catch (error) {
     console.error("Error fetching admin bookings:", error);
     if (listEl) listEl.innerHTML = "<div class='error'>Failed to load bookings from server.</div>";
   }
+}
+
+// Date String များကို YYYY-MM-DD Format သို့ ပြောင်းပေးသော Helper Function
+function parseToISODate(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "";
+  return d.toISOString().split("T")[0];
 }
 
 function renderBookingList(bookings) {
